@@ -144,7 +144,6 @@ void loop() {
     Serial.println(response_buffer);
     StaticJsonDocument<200> doc;
     DeserializationError error = deserializeJson(doc, response_buffer);
-    
   }
   if(!digitalRead(BUTTON2)){
     int len = strlen(json_body);
