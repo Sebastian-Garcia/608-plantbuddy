@@ -8,11 +8,11 @@ names_list = []
 moisture_list = []
 shade_list = []
 for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-    URL = "https://pfaf.org/user/DatabaseSearhResult.aspx?LatinName={web_letter}%".format(web_letter=letter)
+    URL = "https://pfaf.org/user/DatabaseSearhResult.aspx?LatinName=A"
     page = requests.get(URL)
-
     soup = BeautifulSoup(page.text, 'html.parser')
     dfs = pd.read_html(page.text)
+    break
     info = dfs[1]
     names_list += info['Latin Name'][0:len(info['Latin Name'])-1].tolist()
     moisture_list += info['Moisture'][0:len(info['Moisture'])-1].tolist()
