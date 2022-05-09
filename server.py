@@ -3,7 +3,7 @@ import sqlite3
 from bs4 import BeautifulSoup
 import pandas as pd
 import json
-
+import smtplib
 
 
 #webscraper
@@ -27,6 +27,16 @@ import json
 plant_db = '/var/jail/home/team58/plantbuddy/plants.db' 
 plant_reading_db = '/var/jail/home/team58/plantbuddy/plants_reading.db' 
 
+def send_notification(message, recipient="sebastianag2002@gmail.com"):
+
+    message = "plant moisture levels are low, water in a few days"
+    sender = "sebastiandeveloperemail@gmail.com"
+    password = "Pikachu44!"
+
+    server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    server.login(sender, password)
+    server.sendmail(sender, recipient, message)
+    server.quit()
 
 def request_handler(request):
     htmlString = """
@@ -61,7 +71,7 @@ def request_handler(request):
     <a>Soil moisture: {m}</a>
     <h2>--------------------------------------------------</h2>
     <h2>Current Conditions</h2>
-    <a>Hours of sunlight needed:{sr}</a>
+    <a>Hours of sunlight gotten per day:{sr}</a>
     <br>
     <a>Temperature: {tr}</a>
     <br>
@@ -186,10 +196,12 @@ def request_handler(request):
             #     temp_reading = str(temp_reading) + ' TOO COLD!'
             # elif temp_reading > float(temperature) + 10:
             #     sunlight_reading = str(temp_reading) + ' TOO HOT!'
-            # if soil_reading < float(moisture) - 10:
-            #     soil_reading = str(soil_reading) + ' TOO LITTLE WATER!'
-            # elif soil_reading > float(moisture) + 10:
-            #     soil_reading = str(soil_reading) + ' TOO MUCH WATER!'
+            if soil_reading < float(moisture) - 1000:
+                soil_reading = str(soil_reading) + ' TOO LITTLE WATER!'
+                send_notification("Plant has low moisture level, water soon!")
+            elif soil_reading > float(moisture) + 1000:
+                soil_reading = str(soil_reading) + ' TOO MUCH WATER!'
+                send_notification("Plant has too much water! Refrain from watering, and look into how to resolve.")
 
             return htmlString.format(n=plant, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
         
