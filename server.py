@@ -30,7 +30,8 @@ def request_handler(request):
     plantName = 'no information yet'
     plantType = 'no information yet'
     user = 'no information yet'
-    sunlight = 'no information yet'
+    sunlight_intensity = 'no information yet'
+    sunlight_hours = 'no information yet'
     temperature = 'no information yet'
     moisture = 'no information yet'
     sunlight_reading = 'no readings yet'
@@ -46,61 +47,64 @@ def request_handler(request):
                     sampling = c.execute('''SELECT * FROM plant_sampling_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchone()
                     return sampling[2]
             else:
-                plantName = request["values"]["name"]
-                user = request["values"]["user"]
-                with sqlite3.connect(plant_db) as c:
-                    c.execute("""CREATE TABLE IF NOT EXISTS plant_data (plant text, type text, user text, sunlight real, temperature real, moisture real);""")
-                    things = c.execute('''SELECT * FROM plant_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchall()
-                    plantType = things[0][1]
-                    sunlight = things[0][3]
-                    temperature = things[0][4]
-                    moisture = things[0][5]
-
-                    moisture_percent = moisture/4096
-                    if moisture_percent < .25:
-                        moisture = "Very Low Watering Required"
-                    elif moisture_percent < .50:
-                        moisture = "Low Watering Required"
-                    elif moisture_percent <.75:
-                        moisture = "Medium Amount of Water Required"
-                    else:
-                        moisture = "High Amount of Water Required"
-
                 try:
-                    with sqlite3.connect(plant_reading_db) as c:
-                        c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
-                        readings = c.execute('''SELECT * FROM plant_reading_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchall()
-                        sunlight_reading = readings[0][2]
-                        temp_reading = readings[0][3]
-                        soil_reading = readings[0][4]
+                    plantName = request["values"]["name"]
+                    user = request["values"]["user"]
+                    with sqlite3.connect(plant_db) as c:
+                        c.execute("""CREATE TABLE IF NOT EXISTS plant_data (plant text, type text, user text, sunlight_intensity text, sunlight_hours real, temperature real, moisture real);""")
+                        things = c.execute('''SELECT * FROM plant_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchall()
+                        plantType = things[0][1]
+                        sunlight_intensity = things[0][3]
+                        sunlight_hours = things[0][4]
+                        temperature = things[0][5]
+                        moisture = things[0][6]
 
-                        soil_reading_percent = soil_reading/4096
+                        # moisture_percent = moisture/4096
+                        # if moisture_percent < .25:
+                        #     moisture = "Very Low Watering Required"
+                        # elif moisture_percent < .50:
+                        #     moisture = "Low Watering Required"
+                        # elif moisture_percent <.75:
+                        #     moisture = "Medium Amount of Water Required"
+                        # else:
+                        #     moisture = "High Amount of Water Required"
+                        output_message = "Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)"
 
-                        if soil_reading_percent < .25:
-                            soil_reading = "Very Low Water Level"
-                        elif soil_reading_percent < .50:
-                            soil_reading = "Low Water Level"
-                        elif soil_reading_percent <.75:
-                            soil_reading = "Medium Amount of Water"
-                        else:
-                            soil_reading = "High Amount of Water"
+                    try:
+                        with sqlite3.connect(plant_reading_db) as c:
+                            c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
+                            readings = c.execute('''SELECT * FROM plant_reading_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchall()
+                            sunlight_reading = readings[0][2]
+                            temp_reading = readings[0][3]
+                            soil_reading = readings[0][4]
+
+                            # soil_reading_percent = soil_reading/4096
+
+                            # if soil_reading_percent < .25:
+                            #     soil_reading = "Very Low Water Level"
+                            # elif soil_reading_percent < .50:
+                            #     soil_reading = "Low Water Level"
+                            # elif soil_reading_percent <.75:
+                            #     soil_reading = "Medium Amount of Water"
+                            # else:
+                            #     soil_reading = "High Amount of Water"
+                            output_message = do_plant_logic(plantName, user)
+                    except:
+                        pass
+
+                    return htmlString.format(n=plantName, pt= plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading,output=output_message)
                 except:
-                    pass
-
-                
-                return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
-        # except:
-        #     return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
+                    return htmlString.format(n=plantName, pt= plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading,output="Find your plant!")
 
         
     elif request['method'] =="POST":
         # return request
-        try:
+        # try:
+            # start new sampling POST request 
             if 'form' in request.keys() and 'submit' in request["form"]:
                 user = request['form']['user']
                 plantName = request['form']['name']
                 plantType = request['form']['type']
-                sunlight = request['form']['light']
                 temperature = request['form']['temp']
                 moisture = request['form']['soil']
                 with sqlite3.connect(plant_sampling_db) as c:
@@ -110,61 +114,72 @@ def request_handler(request):
                 with sqlite3.connect(plant_reading_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
                     c.execute('''INSERT into plant_reading_data VALUES (?,?,?,?,?);''',(plantName,user,0,0,0))
-                return htmlString.format(n=plantName, pt=plantType, o=user, s=sunlight, t=temperature, m=moisture, sr="Pending", tr="Pending",mr="Pending")
+                return htmlString.format(n=plantName, pt=plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr="Pending", tr="Pending",mr="Pending", output="Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)")
 
+            # add new plant POST request
             if 'form' in request.keys() and 'from' not in request["form"]:
                 user = request['form']['user']
                 plantName = request['form']['name']
                 plantType = request['form']['type']
 
                 if plantType == 'Snake Plant':
-                    sunlight = 10
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 10
                     moisture = 10
                 elif plantType == 'Peace Lily':
-                    sunlight = 20
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 20
                     moisture = 20
                 elif plantType == 'Fiddle Leaf Fig':
-                    sunlight = 30
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 30
                     moisture = 30
                 elif plantType == 'Philodendron':
-                    sunlight = 40
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 40
                     moisture = 40
                 elif plantType == 'ZZ Plant':
-                    sunlight = 50
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 50
                     moisture = 50
                 elif plantType == 'Pothos':
-                    sunlight = 60
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 60
                     moisture = 60
                 elif plantType == 'Majesty Palm':
-                    sunlight = 70
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 70
                     moisture = 70
                 elif plantType == 'Aloe':
-                    sunlight = 80
+                    sunlight_intensity = 'no information yet'
+                    sunlight_hours = 'no information yet'
                     temperature = 80
                     moisture = 80
                 else:
                     moisture = request['form']['soil']
-                    sunlight = request['form']['light']
+                    sunlight_intensity = request['form']['lightType']
+                    sunlight_hours = request['form']['lightTime']
                     temperature = request['form']['temp']
+
                 # add new plant to database
                 with sqlite3.connect(plant_db) as c:
-                    c.execute("""CREATE TABLE IF NOT EXISTS plant_data (plant text, type text, user text, sunlight real, temperature real, moisture real);""")
-                    c.execute('''INSERT into plant_data VALUES (?,?,?,?,?,?);''',(plantName,plantType,user,sunlight,temperature,moisture))
+                    c.execute("""CREATE TABLE IF NOT EXISTS plant_data (plant text, type text, user text, sunlight_intensity text, sunlight_hours real, temperature real, moisture real);""")
+                    c.execute('''INSERT into plant_data VALUES (?,?,?,?,?,?,?);''',(plantName,plantType,user,sunlight_intensity,sunlight_hours,temperature,moisture))
                 # start a GET counter for new sampling device
                 with sqlite3.connect(plant_sampling_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_sampling_data (plant text, user text, counter int);""")
                     c.execute('''INSERT into plant_sampling_data VALUES (?,?,?);''',(plantName,user,0))
 
-                return htmlString.format(n=plantName, pt=plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading) 
+                return htmlString.format(n=plantName, pt=plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading,output=do_plant_logic(plantName, user)) 
 
-            # handle arduino post request
+            # handle arduino POST request
             elif 'form' in request.keys() and 'from' in request["form"] and 'arduino' == request["form"]['from']:
                 
                 info = request["form"]
@@ -181,9 +196,65 @@ def request_handler(request):
         
         
         
-        except:
-            return "invalid HTTP method for this url."
+        # except:
+        #     return "invalid HTTP method for this url."
 
 
-def do_plant_logic():
-    pass
+def do_plant_logic(plant, user):
+    sunlight_reading = 0
+    temp_reading = 0
+    soil_reading = 0
+
+    with sqlite3.connect(plant_db) as c:
+        c.execute("""CREATE TABLE IF NOT EXISTS plant_data (plant text, type text, user text, sunlight_intensity text, sunlight_hours real, temperature real, moisture real);""")
+        things = c.execute('''SELECT * FROM plant_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plant, user)).fetchone()
+        ideal_sunlight_intensity = things[3]
+        ideal_sunlight_hours = things[4]
+        ideal_temp = things[5]
+        ideal_moisture = things[6]
+    
+    try:
+        with sqlite3.connect(plant_reading_db) as c:
+            c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
+            readings = c.execute('''SELECT * FROM plant_reading_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plant, user)).fetchall()
+            sunlight_reading = readings[0][2]
+            temp_reading = readings[0][3]
+            soil_reading = readings[0][4]
+        
+    except:
+        pass
+
+    if sunlight_reading == 0 and temp_reading == 0 and soil_reading == 0:
+        return "Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)"
+    
+    output_message = ""
+
+    if ideal_temp - temp_reading > 5:
+        output_message += "Your plant is too hot! :(<br>"
+    elif temp_reading - ideal_temp > 5:
+        output_message += "Your plant is too cold! :(<br>"
+    else:
+        output_message += "Your plant is just the right temperature :)<br>"
+
+    if ideal_sunlight_intensity == "Low":
+        ideal_sunlight = 50 * ideal_sunlight_hours
+    elif ideal_sunlight_intensity == "Medium":
+        ideal_sunlight = 300 * ideal_sunlight_hours
+    else:
+        ideal_sunlight = 750 * ideal_sunlight_hours
+    
+    if (ideal_sunlight - sunlight_reading > 500):
+        output_message += "Your plant needs more sunlight! :(<br>"
+    elif (sunlight_reading - ideal_sunlight > 500):
+        output_message += "Your plant needs less sunlight! :(<br>"
+    else:
+        output_message += "Your plant is getting enough sunlight :)<br>"
+
+    if (ideal_moisture - soil_reading > 10):
+        output_message += "Water your plant! :(<br>"
+    elif (soil_reading - ideal_moisture > 10):
+        output_message += "Your plant is overwatered! :(<br>"
+    else:
+        output_message += "Your plant is getting enough water :)<br>"
+    
+    return output_message
