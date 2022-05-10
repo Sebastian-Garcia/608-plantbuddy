@@ -66,11 +66,23 @@ def request_handler(request):
 
         
     elif request['method'] =="POST":
+        # return request
         try:
-            if request['args'] == []:
+            if 'form' in request.keys() and 'submit' in request["form"]:
+                user = request['form']['user']
+                plantName = request['form']['name']
+                plantType = request['form']['type']
+                sunlight = request['form']['light']
+                temperature = request['form']['temp']
+                moisture = request['form']['soil']
                 with sqlite3.connect(plant_sampling_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_sampling_data (plant text, user text, counter int);""")
-                    c.execute('''INSERT into plant_sampling_data VALUES (?,?,?);''',(plantName,user,0))
+                    sampling = c.execute('''SELECT * FROM plant_sampling_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchone()
+                    c.execute('''INSERT into plant_sampling_data VALUES (?,?,?);''',(plantName,user,sampling[2]+1))
+                with sqlite3.connect(plant_reading_db) as c:
+                    c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
+                    c.execute('''INSERT into plant_reading_data VALUES (?,?,?,?,?);''',(plantName,user,0,0,0))
+                return htmlString.format(n=plantName, pt=plantType, o=user, s=sunlight, t=temperature, m=moisture, sr="Pending", tr="Pending",mr="Pending")
 
             if 'form' in request.keys() and 'from' not in request["form"]:
                 user = request['form']['user']
@@ -135,7 +147,6 @@ def request_handler(request):
                 with sqlite3.connect(plant_reading_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
                     c.execute('''INSERT into plant_reading_data VALUES (?,?,?,?,?);''',(plantName,user,sunlight_reading,temp_reading,soil_reading))
-                    # readings = c.execute('''SELECT * FROM plant_reading_data ORDER BY rowid DESC LIMIT 1;''').fetchall()
                 return
 
         

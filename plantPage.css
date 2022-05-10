@@ -29,11 +29,17 @@ h1 {
 .left{
     float: left;
     text-align: center;
+    margin-left: 5%;
+}
+
+.under{
+    text-align: center;
+    margin-top: 10%;
 }
 
 .center{
     float: left;
-    margin-left: 30%;
+    margin-left: 25%;
     margin-top: 2%;
     text-align: center;
 }

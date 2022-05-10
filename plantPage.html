@@ -6,35 +6,8 @@
 <body class="back" >
     <h1>Plant Buddy</h1>
     <div>
-        <form action="server.py" method="post" class="left">
-            <div>
-                Want to add a plant?
-            </div>
-            <label for="name">Plant Name:</label><br>
-                <input type="text" id="name" name="name"><br><br>
-            <label for="name">Plant Type:</label><br>
-                <input type="text" id="type" name="type"><br><br>
-            <label for="user">User Email:</label><br>
-                <input type="text" id="user" name="user"><br><br>
-            <label for="light">Hours of sunlight:</label><br>
-                <input type="text" id="light" name="light"><br><br>
-            <label for="temp">Ideal temperature:</label><br>
-                <input type="text" id="temp" name="temp"><br><br>
-            <label for="temp">Soil moisture percentage:</label><br>
-                <input type="text" id="soil" name="soil"><br><br>
-                <input type="submit" value="Submit">
-        </form> 
-        <form action="server.py" method="get" class="center">
-            <div>
-                Already have a plant?
-            </div>
-            <label for="name">Plant Name:</label><br>
-                <input type="text" id="name" name="name"><br><br>
-            <label for="user">User Email:</label><br>
-                <input type="text" id="user" name="user"><br><br>
-                <input type="submit" value="Get my plant">
-        </form>
-        <form action="server.py" method="post" class="center">
+        <div class="left">
+        <form action="server.py" method="post">
             <div>
                 Have a plant in mind?
             </div>
@@ -55,6 +28,35 @@
             </select> <br><br>
                 <input type="submit" value="Submit">
         </form> 
+        <form action="server.py" method="post" class="under">
+            <div>
+                Want to add a new type of plant?
+            </div>
+            <label for="name">Plant Name:</label><br>
+                <input type="text" id="name" name="name"><br><br>
+            <label for="name">Plant Type:</label><br>
+                <input type="text" id="type" name="type"><br><br>
+            <label for="user">User Email:</label><br>
+                <input type="text" id="user" name="user"><br><br>
+            <label for="light">Hours of sunlight:</label><br>
+                <input type="text" id="light" name="light"><br><br>
+            <label for="temp">Ideal temperature:</label><br>
+                <input type="text" id="temp" name="temp"><br><br>
+            <label for="temp">Soil moisture percentage:</label><br>
+                <input type="text" id="soil" name="soil"><br><br>
+                <input type="submit" value="Submit">
+        </form> 
+        </div>
+        <form action="server.py" method="get" class="center">
+            <div>
+                Already have a plant?
+            </div>
+            <label for="name">Plant Name:</label><br>
+                <input type="text" id="name" name="name"><br><br>
+            <label for="user">User Email:</label><br>
+                <input type="text" id="user" name="user"><br><br>
+                <input type="submit" value="Get my plant">
+        </form>
         <div class="right">
             <h2>Plant Info</h2>
             <a>Plant name: {n}</a>
@@ -76,8 +78,13 @@
             <br>
             <a>Soil moisture: {mr}</a>
             <form action="server.py" method="post">
-                <input id="name" name="name" value={n}>
-                <input id="user" name="user" value={o}>
+                <input type ="hidden" name ="name" value = {n}>
+                <input type ="hidden" name ="user" value = {o}>
+                <input type ="hidden" name ="type" value = {pt}>
+                <input type ="hidden" name ="light" value = {s}>
+                <input type ="hidden" name ="temp" value = {n}>
+                <input type ="hidden" name ="soil" value = {o}>
+                <input type ="hidden" name ="submit" value ="submit">
                 <input type="submit" value="Start new sampling">
             </form>
         </div>

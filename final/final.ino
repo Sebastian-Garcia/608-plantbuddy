@@ -42,11 +42,14 @@ WiFiClient client2; //global WiFiClient Secure object
 
 int val = 0; //value for storing moisture value 
 int soilPin = 5;//Declare a variable for the soil moisture sensor 
-int soilPower = 7;//Variable for Soil moisture Power, to prevent ongoing power, and only when we need it.
 bool ledOn = false;
+//const uint8_t SOIL_PWM = 0; //Variable for Soil moisture Power, to prevent ongoing power, and only when we need it.
+
 
 const char NETWORK[] = "MIT GUEST";
 const char PASSWORD[] = "";
+const char user[] = "alexplantbuddy608@gmail.com";
+const char plant[] = "bob";
 //
 //const char NETWORK[] = "608_24G";
 //const char PASSWORD[] = "608g2020";
@@ -99,6 +102,11 @@ void setup() {
   tft.printf("Test");
   delay(100); //wait a bit (100 ms)
   pinMode(BUTTON, INPUT_PULLUP);
+
+  //Set up PWM for soil
+  //pinMode(SOIL_PWM, OUTPUT); // Setup PWM For Soil
+  //digitalWrite(SOIL_PWM, LOW);
+
 
   loop_timer = millis();
   sample_timer = millis();
@@ -160,6 +168,7 @@ void setup() {
 
 void loop() {
 
+    drawEmotion(true);
     // // constant GET request
     // sprintf(request_buffer,"GET http://608dev-2.net/sandbox/sc/timmyd/milestone_1/server.py HTTP/1.1\r\n");
     // strcat(request_buffer,"Host: 608dev-2.net\r\n");
@@ -191,7 +200,7 @@ void loop() {
   if (num_samples == 48) {
     json_body[0] = '\0';
 
-    sprintf(json_body, "sunlight=%0.1f&temp=%0.1f&moisture=%0.1f&from=arduino", sampling_period_sunlight/2.0, temp_count/48.0, moist_count/48.0);
+    sprintf(json_body, "name=%s&user=%s&sunlight=%0.1f&temperature=%0.1f&moisture=%0.1f&from=arduino", plant, user, sampling_period_sunlight/2.0, temp_count/48.0, (moist_count/48.0)/4096.0*100.0);
 
     int len = strlen(json_body);
     request[0] = '\0'; //set 0th byte to null
@@ -289,15 +298,29 @@ float brightnessExtractor(float vout){
 
 void clear_screen(TFT_eSPI tft){
   tft.setCursor(0, 0, 2); //set cursor
-  tft.printf("Sampling                                                                                                                                                                                                                                                                    ");
-}
+  tft.fillScreen(TFT_WHITE);
+  tft.printf("Sampling");
 
 
 int readSoil(){
-    //digitalWrite(soilPower, HIGH);//turn D7 "On"
-    delay(10);//wait 10 milliseconds 
+    //Use PWM Channel to turn on Soil Pin only when trying to read a value.
+
+    //digitalWrite(SOIL_PWM, HIGH);
+    delay(10);
     val = analogRead(soilPin);//Read the SIG value form sensor 
-    //digitalWrite(soilPower, LOW);//turn D7 "Off"
+    //digitalWrite(SOIL_PWM, LOW);
+
     return val;//send current moisture value
 }
 
+
+void drawEmotion(bool happy){
+  tft.fillScreen(TFT_WHITE); //fill background
+  tft.setCursor(0,0,2);
+  if bool == true {
+    tft.print(":)");
+  }
+  else{
+    tft.print(":(");
+  }
+}
