@@ -49,6 +49,16 @@ def request_handler(request):
                     temperature = things[0][4]
                     moisture = things[0][5]
 
+                    moisture_percent = moisture/4096
+                    if moisture_percent < .25:
+                        moisture = "Very Low Watering Required"
+                    elif moisture_percent < .50:
+                        moisture = "Low Watering Required"
+                    elif moisture_percent <.75:
+                        moisture = "Medium Amount of Water Required"
+                    else:
+                        moisture = "High Amount of Water Required"
+
                 try:
                     with sqlite3.connect(plant_reading_db) as c:
                         c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
@@ -56,10 +66,21 @@ def request_handler(request):
                         sunlight_reading = readings[0][0]
                         temp_reading = readings[0][1]
                         soil_reading = readings[0][1]
+
+                        soil_reading_percent = soil_reading/4096
+
+                        if soil_reading_percent < .25:
+                            soil_reading = "Very Low Water Level"
+                        elif soil_reading_percent < .50:
+                            soil_reading = "Low Water Level"
+                        elif soil_reading_percent <.75:
+                            soil_reading = "Medium Amount of Water"
+                        else:
+                            soil_reading = "High Amount of Water"
                 except:
                     pass
 
-
+                
                 return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
         except:
             return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
