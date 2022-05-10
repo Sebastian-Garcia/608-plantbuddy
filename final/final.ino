@@ -199,7 +199,7 @@ void loop() {
   if (num_samples == 48) {
     json_body[0] = '\0';
 
-    sprintf(json_body, "plant=%s&user=%s&sunlight=%0.1f&temperature=%0.1f&moisture=%0.1f&from=arduino", plant, user, sampling_period_sunlight/2.0, temp_count/48.0, (moist_count/48.0)/4096.0*100.0);
+    sprintf(json_body, "name=%s&user=%s&sunlight=%0.1f&temperature=%0.1f&moisture=%0.1f&from=arduino", plant, user, sampling_period_sunlight/2.0, temp_count/48.0, (moist_count/48.0)/4096.0*100.0);
 
     int len = strlen(json_body);
     request[0] = '\0'; //set 0th byte to null

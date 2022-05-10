@@ -54,6 +54,11 @@
             <a>Temperature: {tr}</a>
             <br>
             <a>Soil moisture: {mr}</a>
+            <form action="server.py" method="post">
+                <input id="name" name="name" value={n}>
+                <input id="user" name="user" value={o}>
+                <input type="submit" value="Start new sampling">
+            </form>
         </div>
     </div>
 </body>
