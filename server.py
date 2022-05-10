@@ -4,13 +4,23 @@ import sqlite3
 from bs4 import BeautifulSoup
 import pandas as pd
 import json
-
+import smtplib
 
 
 plant_db = '/var/jail/home/team58/plantbuddy/plants.db' 
 plant_reading_db = '/var/jail/home/team58/plantbuddy/plants_reading.db' 
 plant_sampling_db = '/var/jail/home/team58/plantbuddy/plants_sampling.db' 
 
+def send_notification(message, recipient="sebastianag2002@gmail.com"):
+
+    message = "plant moisture levels are low, water in a few days"
+    sender = "sebastiandeveloperemail@gmail.com"
+    password = "Pikachu44!"
+
+    server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    server.login(sender, password)
+    server.sendmail(sender, recipient, message)
+    server.quit()
 
 def request_handler(request):
     with open("/var/jail/home/team58/plantbuddy/plantPage.html", "r", encoding='utf-8') as f:
