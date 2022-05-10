@@ -43,7 +43,7 @@ WiFiClient client2; //global WiFiClient Secure object
 int val = 0; //value for storing moisture value 
 int soilPin = 5;//Declare a variable for the soil moisture sensor 
 bool ledOn = false;
-const uint8_t SOIL_PWM = 0; //Variable for Soil moisture Power, to prevent ongoing power, and only when we need it.
+//const uint8_t SOIL_PWM = 0; //Variable for Soil moisture Power, to prevent ongoing power, and only when we need it.
 
 
 const char NETWORK[] = "MIT GUEST";
@@ -104,8 +104,8 @@ void setup() {
   pinMode(BUTTON, INPUT_PULLUP);
 
   //Set up PWM for soil
-  pinMode(SOIL_PWM, OUTPUT); // Setup PWM For Soil
-  digitalWrite(SOIL_PWM, LOW);
+  //pinMode(SOIL_PWM, OUTPUT); // Setup PWM For Soil
+  //digitalWrite(SOIL_PWM, LOW);
 
 
   loop_timer = millis();
@@ -304,10 +304,10 @@ void clear_screen(TFT_eSPI tft){
 int readSoil(){
     //Use PWM Channel to turn on Soil Pin only when trying to read a value.
 
-    digitalWrite(SOIL_PWM, HIGH);
+    //digitalWrite(SOIL_PWM, HIGH);
     delay(10);
     val = analogRead(soilPin);//Read the SIG value form sensor 
-    digitalWrite(SOIL_PWM, LOW);
+    //digitalWrite(SOIL_PWM, LOW);
 
     return val;//send current moisture value
 }
