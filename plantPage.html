@@ -55,8 +55,13 @@
             <br>
             <a>Soil moisture: {mr}</a>
             <form action="server.py" method="post">
-                <input id="name" name="name" value={n}>
-                <input id="user" name="user" value={o}>
+                <input type ="hidden" name ="name" value = {n}>
+                <input type ="hidden" name ="user" value = {o}>
+                <input type ="hidden" name ="type" value = {pt}>
+                <input type ="hidden" name ="light" value = {s}>
+                <input type ="hidden" name ="temp" value = {n}>
+                <input type ="hidden" name ="soil" value = {o}>
+                <input type ="hidden" name ="submit" value ="submit">
                 <input type="submit" value="Start new sampling">
             </form>
         </div>

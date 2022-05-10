@@ -29,11 +29,12 @@ h1 {
 .left{
     float: left;
     text-align: center;
+    margin-left: 5%;
 }
 
 .center{
     float: left;
-    margin-left: 30%;
+    margin-left: 25%;
     margin-top: 2%;
     text-align: center;
 }
