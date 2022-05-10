@@ -5,7 +5,7 @@ h1 {
     text-align: center;
     font-family: 'Oswald', Helvetica, sans-serif;
     font-size: 70px;
-    transform: skewY(-10deg);
+    transform: skewY(-5deg);
     letter-spacing: 4px;
     word-spacing: -8px;
     color: rgb(251, 216, 210);
@@ -24,7 +24,7 @@ h1 {
 h2{
     text-align: center;
     font-family: 'Oswald', Helvetica, sans-serif;
-    font-size: 25px;
+    font-size: 22px;
     color: rgb(251, 216, 210);
 }
 
@@ -44,7 +44,7 @@ h3{
     float: left;
     text-align: center;
     margin-left: 6%;
-    margin-top: 5%;
+    margin-top: 3%;
 }
 
 .under{
@@ -65,6 +65,6 @@ h3{
     background-color: #399143;
     float: right;
     text-align: center;
-    margin-right: 1%;
+    margin-right: 2%;
     margin-bottom: 1%;
 }
