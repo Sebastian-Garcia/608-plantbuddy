@@ -197,63 +197,24 @@ ESP32 Side
 -------------------------------------------------------------------------------
 This figure shows some of the most important parts of our code run on the ESP32:
 **********************************************************
-*            Server-side                                 *
+*            ESP32-side                                  *
 *  .------------------------------.                      *
-* |     /                          |                     *
-* |     |                          |                     *
-* |     +--hardware_setup/         |                     *
-* |     |  |                       |                     *
-* |     |  +-- frequency_change.ino|                     *
-* |     |  +-- stair_laser.ino     |                     *
-* |     |  +-- track_stairs.ino    |                     *
-* |     |                          |                     *
-* |     +-- AirPianoESP32.ino      |                     *
-* |     |                          |                     *
-* |     +-- pins.h                 |                     *
-* |     +-- ui_constants.h         |                     *
-* |     +-- http_constants.h       |                     *
-* |     |                          |                     *
-* |     +-- google-speech.h        |                     *
-* |     +-- google-speech.cpp      |                     *
-* |     |                          |                     *
-* |     +-- support_functions.h    |                     *
-* |     +-- support_functions.cpp  |                     *
-* |     |                          |                     *
-* |     +-- classy-button.h        |                     *
+* |     +-- final.ino              |                     *
+* |     +-- support_functions.ino  |                     *
 *  '------------------------------'                      *
 **********************************************************
 
-### hardware_setup/
+### final.ino - GET & POST request
 
-The scripts in this folder were initially used to test out interfacing with the phototransistors and and the lasers in order to play notes. They are the only code here not run on the ESP32 for the final project.
 
-### AirPianoESP32.ino
+### final.ino - Signal Processing 
 
-This is where the main loop and state machine of the system runs. The setup and loop functions are at the end of the file and the function `draw_menu` is where most helper functions are called from and how state transitions are implemented.
+### final.ino - Sampling
 
-### pins.h
+### support_functions.ino
 
-A file containing the pins used for different devices such as the button and phototransistors on each stair. 
+Support functions for running GET and POST requests on final.ino.
 
-### ui_constants.h
-
-This file contains the string constants used when displaying static messages to the user about the current mode and how to interface with the system.
-
-### http_constants.h
-
-This file contains constants involved with connecting to WiFi and making HTTP requests. It also defines a struct with both the request and response buffers for easier organization.
-
-### google-speech(.h/.cpp)
-
-This file is based off of the Google Speech API lab with minor tweaks to interface with the main body of the code better and give users feedback on the progress in the form of ellipses on the display.
-
-### support_functions(.h/.cpp)
-
-This file provides the functions necessary to send and recieve HTTP requests and responses. The header file was created so that it could be used in both the main file and the google speech file.
-
-### classy-button.h
-
-The button implementation used that allows us to detect both short and long presses. Taken directly from the exercise without any needed modifications.
 
 Server Side
 -------------------------------------------------------------------------------
@@ -270,126 +231,141 @@ This figure shows some of the most important parts of our server side elements:
 *  '------------------------------'                      *
 **********************************************************
 
-### server.py
+### server.py - Selecting a plant type from list 
+On our HTML page, users can select a plant from a list containing a few of the most common household plants. When they press submit button on the page, it will send a POST request to the server, collecting information about the user’s email, the plant’s name, and one of the plant types from the list. Depending on the plant type, the sunlight, temperature, and moisture levels will be set. It creates plant_db and plant_sampling_db if it doesn’t exist and then inserts values into the database. The values that are inserted into these databases are specified a few sections below.
+
+### server.py - Adding a new plant type
+If a plant the user is looking for is not on the list, users can add a new type by manually inputting plant name, plant type, user email, sunlight intensity, hours of sunlight, ideal temperature, and soil moisture percentage and pressing submit on the HTML page to send a POST request to the server. Adding a new plant type will essentially follows the same procedure as selecting a plant type from a list but in this case the sunlight, temperature, and moisture levels are set by the user instead of automatically being set on the server. 
+
+### server.py - Getting information from an existing plant
+Users can get information about an existing plant from plant_db by inputting the plant’s name and user email and then pressing submit. This will send a GET request to the server, which will look into the plant_db database with the plant’s name and user email that was inputted from the HTML page.
+
+### server.py - Starting new sampling period
+--text--
+
+### server.py - Plant Logic
+--text–
+
+### server.py - Sending Notifications
 --text--
 
 ### plantPage.html
---text--
+Contains the HTML code for our page.
 
 ### plantPage.css 
-Contains cascading styling sheet (CSS) used by our HTML page.
+Contains Cascading Styling Sheet (CSS) used by our HTML page.
 
 ### plant.db 
 
-* `plant`, a unqiue identification number: used to retrieve notes back to the esp32
-* `type`, name given by user: this is done in the recording state of the system
-* `user`: tells us which esp32 posted this song
-* `sunlight`: the note frequencies of the song as sent by the esp32
-* `temperature`: used to tell us when to stop playing a certain frequency
-* `moisture`, a timestamp: used when sorting by most recent songs
+This database contains information about each plant with the following information:
+
+* `plant`, a name given to the plant manually inputted by the user
+* `type`,  type of plant, either manually inputted by the user or selected from a list
+* `user`: email of the user manually inputted by the user
+* `sunlight_intensity`: the ideal sunlight intensity for the plant, either manually inputted from the user or automatically given if the user selects a plant type from the list
+* `sunlight_hours`: the ideal sunlight hours for the plant, either manually inputted from the user or automatically given if the user selects a plant type from the list
+* `temperature`: the ideal temperature for the plant, either manually inputted from the user or automatically given if the user selects a plant type from the list
+* `moisture`: the ideal moisture for the plant, either manually inputted from the user or automatically given if the user selects a plant type from the list
 
 For example:
 
-| plant |            type            | user |         sunlight         |       temperature       |        moisture       |
-|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|
-| 54 |       i want you back      |     Jackson5    | *playable file here* | 2021-05-09 14:57 | 2021-05-09 14:57 |
-| 53 | never going to give you up |       Rick      | *playable file here* | 2021-05-09 14:53 | 2021-05-09 14:57 |
+| plant |            type            | user |         sunlight_intensity        |            sunlight_hours        |  temperature       |        moisture       |
+|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|:----------------:|:----------------:|:----------------:|
+| Bob |       Fern      |     timmyd@mit.edu    | Low | 10 | 20 | 40 |
+| Bobbie | Snake Plant |       alexplantbuddy608@gmail.com      | Medium | 8 | 25 | 40 |
 
 ### plant_reading.db  
-* `plant`, a unqiue identification number: used to retrieve notes back to the esp32
-* `type`, name given by user: this is done in the recording state of the system
-* `user`: tells us which esp32 posted this song
-* `sunlight_reading`: the note frequencies of the song as sent by the esp32
-* `temperature_reading`: used to tell us when to stop playing a certain frequency
-* `moisture_reading`, a timestamp: used when sorting by most recent songs
+
+This database contains information on a plant's current conditions with readings from sensors on the ESP32 side. 
+
+* `plant`, a name given to the plant manually inputted by the user
+* `type`,  type of plant, either manually inputted by the user or selected from a list
+* `user`: email of the user manually inputted by the user
+* `sunlight_reading`: sunlight reading using a sensor sent from ESP32
+* `temperature_reading`: temperature reading using a sensor sent from ESP32
+* `moisture_reading`, moisture reading using a sensor sent from ESP32
 
 For example:
 
-| ID |            Name            | Author/Location |         Song         |       Date       |
-|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|
-| 54 |       i want you back      |     Jackson5    | *playable file here* | 2021-05-09 14:57 |
-| 53 | never going to give you up |       Rick      | *playable file here* | 2021-05-09 14:53 |
+| plant |            type            | user |         sunlight_reading         |       temperature_reading       | moisture_reading |
+|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:| :----------------:|
+| Bob |       Fern      |     timmyd@mit.edu    | 2000 | 23 | 10 |
+| Bobbie | Snake Plant |       alexplantbuddy608@gmail.com      | 2000 | 22 | 10 |
 
 
 ### plant_sampling.db   
-* `plant`, a unqiue identification number: used to retrieve notes back to the esp32
-* `user`, name given by user: this is done in the recording state of the system
-* `counter`: tells us which esp32 posted this song
+
+--text--
+
+* `plant`, a name given to the plant manually inputted by the user
+* `user`: email of the user manually inputted by the user
+* `counter`: --text--
 
 
 For example:
 
-| ID |            Name            | Author/Location |         Song         |       Date       |
-|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|
-| 54 |       i want you back      |     Jackson5    | *playable file here* | 2021-05-09 14:57 |
-| 53 | never going to give you up |       Rick      | *playable file here* | 2021-05-09 14:53 |
+| plant |            user            | counter |    
+|:--:|:--------------------------:|:---------------:|
+| Bob |       timmyd@mit.edu      |     3    | 
+| Bobbie | alexplantbuddy608@gmail.com  |       5      | 
 
 
-Webscraper
--------------------------------------------------------------------------------
-live, laugh, love. it did not work man
 
 Milestone Contributions
 ===============================================================================
 
-Here are the weekly milestones seperated into 4 categories based on how much they contributed to a particular functionality of the system.
 
-## Free Play Functionality
+## Week 1
 
-![Send sensor reading to the Serial monitor, and have a way of differentiating between frequencies coming from different devices.](https://youtu.be/tPlnKJwN2B8)
+The photoresistor, temperature/pressure sensors, moisture sensor, and other hardware components were wired, which was obviously vital to the functionality of the project. The basic structure of the website and database were separately created, later to be integrated so users could have some way of interacting with the project. The server was also set up, so essentially, week 1 was spent setting up some basic structures that can be built upon and integrated with each other in weeks to come.
 
-![Free Play Mode](https://www.youtube.com/watch?v=7khlS5T2DDA)
+![Alex](https://drive.google.com/file/d/1sLVhNT-eM0-dCEjLG_riZcZ1v9sZtG94/view?usp=sharing)
 
-![Make Free Play More Robust and Print Remaining Mounts](https://youtu.be/cFbvw4tXOsw)
+![Sebastian](https://www.youtube.com/watch?v=7khlS5T2DDA)
 
-![Implement variation of Free Play playing multiple notes at once](https://youtu.be/XbiTXVIhxX8)
+![Timmy](https://drive.google.com/file/d/1emjhNYBhiAUjecENh1mnH2usJZSLNcFn/view?usp=sharing)
 
-## Secondary Modes Functionality
+## Week 2
 
-![Naming Recordings using Google’s Speech API](https://youtu.be/RsjL2jiu4qo)
+The sensors were connected last week, and this week, they were translated into values with real-life meanings. Then, it was time for integration. The web interface and server were integrated so as to successfully receive and insert data from the user to the database, which was of course important to the actual ability of the system to remember the plants that users entered. To get data on plants (so we can know how a plant should be treated), we scraped a website with plant information and consolidated the data for later use.
 
-![Recording Mode](https://youtu.be/EJsaIk916sU)
+![Alex](https://drive.google.com/file/d/1F82XYBHSA7Q7KvCG2hRZ-dOTHeMPXQtJ/view?usp=sharing)
 
-![Song Mode](https://youtu.be/LdR9eLXJE98)
+![Sebastian](https://drive.google.com/file/d/1h9suyZFBmj0H6YFnSaIAEbLu5LV8D_Q9/view?usp=sharing)
 
-![Integrate Song Mode into Main Body of Code](https://youtu.be/fyiZQ1chhIA)
+![Sebastian 2](https://drive.google.com/file/d/1pDncrwCtrGK9J2psj10Gy75qJCpHAyvW/view?usp=sharing)
 
-![Updated Song Mode with Lights](https://youtu.be/8gBDn5RGuZ0)
+![Timmy](https://drive.google.com/file/d/1hKSy2rqLAgf4GayUgGYKSxTNflQtvBrG/view?usp=sharing)
 
-![Sequencer Mode](https://youtu.be/UfcrCNHbg7s)
+![Web 1](https://drive.google.com/file/d/1qJGUfHMxlWl7zOqzh07ocbwfXALX2lat/view?usp=sharing)
 
-![Integrate Recording Mode with Piano Stairs](https://youtu.be/eOr3jmLpJkc)
+![Web 2](https://drive.google.com/file/d/1NCbF19KWdXPbxsvskZXmwiEAxLq8-uhX/view?usp=sharing)
 
-## ESP32 UI/Hardware Functionality
+## Week 3
 
-![Wire up laser module and send frequency data to ESP32](https://youtu.be/b1B3SwZmOwE)
+This week, the ESP32 state machine was cleaned up to handle situations where there was no plant, as well as monitoring and idle states. The sensor work had been divided previously amongst members, so it was also important to combine that work onto one machine. The web interface was finalized to display current conditions of a plant, and most importantly, the data acquired in the previous week, the server, the database, and the ESP32/sensors were all integrated. We also began to work on a script that would notify users if a plant needed to be watered, moving forward into the real user-catered function of this project.
 
-![Implement State Machine and Basic UI of ESP32](https://www.youtube.com/watch?v=wtNDlFcSXYY)
+![Erin](https://drive.google.com/file/d/1e2k5Q3mEo2NxakONrN4l2P25FOJYznbD/view?usp=sharing)
 
-![Notifications for New Songs](https://youtu.be/-5dzn5mj55E)
+![Sebastian](https://drive.google.com/file/d/1_o-JYlRUCPGNBiiZy5IMxK0Tyh1qs0qx/view?usp=sharing)
 
-![Piano Keys light up LEDs](https://youtu.be/JttNFdSzqg0) 
+![Timmy + Alex](https://drive.google.com/file/d/1AlCLaXzWOAobL5-1XOeprJqCKMMLEAF7/view?usp=sharing)
 
-![Optimize Memory Usage to extend Recording Buffer](https://youtu.be/gtbA-5gfX4E)
+## Week 4
 
-![Clean up hardware/wires to make presentable](https://youtu.be/bzUpNi5kFbM)
+To simplify the user experience, we manually categorized the moisture levels. We also manually added some common household plants to the database. More importantly, the website was updated to be more aesthetically pleasing and to start a sampling process after prompting. We added the feature of being able to see how the plant was doing based on a smiley or sad face on the LCD, and finally, confirmed that the project worked on other devices by creating it again on another ESP.
 
+![Alex](https://drive.google.com/file/d/1PbHT6VutJDg3yDE4CzCGL8FUT6CJ_y2u/view?usp=sharing)
 
-## Server Website Functionality
+![Alex 2](https://drive.google.com/file/d/1mBEvRwv2IzEHwrfW1G_Ae8mHm4aDKQUk/view?usp=sharing)
 
-![Basic Web UI Framework](https://youtu.be/oyCZryL-Fq8)
+![Alex 3](https://drive.google.com/file/d/1WMhBNQDxwFzRmof2iY4JkHaP9RCiWX7a/view?usp=sharing)
 
-![Database Handling of Frequency and Timing Arrays](https://youtu.be/RJyrINzUwqY)
+![Timmy](https://drive.google.com/file/d/1IVqdi_bAQ06Gd_y_KbGQqOKaKGOjYhC2/view?usp=sharing)
 
-![Website Searching and Filtering](https://youtu.be/UBKW9xOdSpk)
+![Sebastian](https://drive.google.com/file/d/11p2lgdDel3tinY1EJX5bFAo_plnHDgLP/view?usp=sharing)
 
-![Navigation Bar](https://youtu.be/ThjD62EfGA0)
-
-![Search Bar](https://youtu.be/FzgIuPLVZIY)
-
-![Indivial Song Page](https://youtu.be/UAaw94atx4w)
-
-![Robust Search and UI Improvements](https://youtu.be/FzqdrAsE7-A)
+![Sebastian 2](https://drive.google.com/file/d/11hbysj4GFL9qb66UJOcy91pCpSYFTMmV/view?usp=sharing)
 
 Team Members
 ===============================================================================
