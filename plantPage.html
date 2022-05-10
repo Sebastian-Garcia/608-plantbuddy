@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="plantPage.css">
+    </head> 
+<body class="back" >
+    <h1>Plant Buddy</h1>
+    <div>
+        <form action="server.py" method="post" class="left">
+            <div>
+                Want to add a plant?
+            </div>
+            <label for="name">Plant Name:</label><br>
+                <input type="text" id="name" name="name"><br><br>
+            <label for="name">Plant Type:</label><br>
+                <input type="text" id="type" name="type"><br><br>
+            <label for="owner">Owner:</label><br>
+                <input type="text" id="owner" name="owner"><br><br>
+            <label for="light">Hours of sunlight:</label><br>
+                <input type="text" id="light" name="light"><br><br>
+            <label for="temp">Ideal emperature:</label><br>
+                <input type="text" id="temp" name="temp"><br><br>
+            <label for="temp">Soil moisture percentage:</label><br>
+                <input type="text" id="soil" name="soil"><br><br>
+                <input type="submit" value="Submit">
+        </form> 
+        <form action="server.py" method="post" class="center">
+            <div>
+                Already have a plant?
+            </div>
+            <label for="name">Plant Name:</label><br>
+                <input type="text" id="name" name="name"><br><br>
+            <label for="owner">Owner:</label><br>
+                <input type="text" id="owner" name="owner"><br><br>
+                <input type="submit" value="Get my plant">
+        </form> 
+        <div class="right">
+            <p>The "Submit" button will upload the data to the database.</p>
+            <h2>--------------------------------------------------</h2>
+            <h2>Plant Info</h2>
+            <a>Plant name: {n}</a>
+            <br>
+            <a>Plant owner: {o}</a>
+            <br>
+            <a>Hours of sunlight needed: {s}</a>
+            <br>
+            <a>Temperature: {t}</a>
+            <br>
+            <a>Soil moisture: {m}</a>
+            <h2>--------------------------------------------------</h2>
+            <h2>Current Conditions</h2>
+            <a>Hours of sunlight needed:{sr}</a>
+            <br>
+            <a>Temperature: {tr}</a>
+            <br>
+            <a>Soil moisture: {mr}</a>
+        </div>
+    </div>
+</body>
+</html>

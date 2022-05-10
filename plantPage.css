@@ -1,0 +1,44 @@
+html{
+    height: 100%;
+}
+h1 {
+    text-align: center;
+    font-family: 'Oswald', Helvetica, sans-serif;
+    font-size: 80px;
+    transform: skewY(-10deg);
+    letter-spacing: 4px;
+    word-spacing: -8px;
+    color: rgb(251, 216, 210);
+    text-shadow: 
+        -1px -1px 0 rgb(92, 88, 88),
+        -2px -2px 0 rgb(92, 88, 88),
+        -3px -3px 0 rgb(92, 88, 88),
+        -4px -4px 0 rgb(92, 88, 88),
+        -5px -5px 0 rgb(92, 88, 88),
+        -6px -6px 0 rgb(92, 88, 88),
+        -7px -7px 0 rgb(92, 88, 88),
+        -8px -8px 0 rgb(92, 88, 88),
+        -30px 20px 40px dimgrey
+}
+
+.back{
+    background-size: cover;
+    background-image: linear-gradient(to right top, #00371d, #0c542b, #217238, #399143, #55b14d);
+}
+
+.left{
+    float: left;
+    text-align: center;
+}
+
+.center{
+    float: left;
+    margin-left: 30%;
+    margin-top: 2%;
+    text-align: center;
+}
+
+.right{
+    float: right;
+    text-align: center;
+}
