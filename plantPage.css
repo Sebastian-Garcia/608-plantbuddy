@@ -4,7 +4,7 @@ html{
 h1 {
     text-align: center;
     font-family: 'Oswald', Helvetica, sans-serif;
-    font-size: 80px;
+    font-size: 70px;
     transform: skewY(-10deg);
     letter-spacing: 4px;
     word-spacing: -8px;
@@ -21,6 +21,20 @@ h1 {
         -30px 20px 40px dimgrey
 }
 
+h2{
+    text-align: center;
+    font-family: 'Oswald', Helvetica, sans-serif;
+    font-size: 25px;
+    color: rgb(251, 216, 210);
+}
+
+
+h3{
+    text-align: center;
+    font-family: 'Oswald', Helvetica, sans-serif;
+    font-size: 15px;
+    color: rgb(251, 216, 210);
+}
 .back{
     background-size: auto;
     background-image: linear-gradient(to right top, #00371d, #0c542b, #217238, #399143, #55b14d);
@@ -46,6 +60,11 @@ h1 {
 }
 
 .right{
+    border-radius: 25px;
+    border: 2px solid white;
+    background-color: #399143;
     float: right;
     text-align: center;
+    margin-right: 1%;
+    margin-bottom: 1%;
 }
