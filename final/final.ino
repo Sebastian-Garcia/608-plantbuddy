@@ -168,6 +168,7 @@ void setup() {
 
 void loop() {
 
+    drawEmotion(true);
     // // constant GET request
     // sprintf(request_buffer,"GET http://608dev-2.net/sandbox/sc/timmyd/milestone_1/server.py HTTP/1.1\r\n");
     // strcat(request_buffer,"Host: 608dev-2.net\r\n");
@@ -297,8 +298,8 @@ float brightnessExtractor(float vout){
 
 void clear_screen(TFT_eSPI tft){
   tft.setCursor(0, 0, 2); //set cursor
-  tft.printf("Sampling                                                                                                                                                                                                                                                                    ");
-}
+  tft.fillScreen(TFT_WHITE);
+  tft.printf("Sampling");
 
 
 int readSoil(){
@@ -312,3 +313,14 @@ int readSoil(){
     return val;//send current moisture value
 }
 
+
+void drawEmotion(bool happy){
+  tft.fillScreen(TFT_WHITE); //fill background
+  tft.setCursor(0,0,2);
+  if bool == true {
+    tft.print(":)");
+  }
+  else{
+    tft.print(":(");
+  }
+}
