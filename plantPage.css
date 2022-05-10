@@ -22,14 +22,15 @@ h1 {
 }
 
 .back{
-    background-size: cover;
+    background-size: auto;
     background-image: linear-gradient(to right top, #00371d, #0c542b, #217238, #399143, #55b14d);
 }
 
 .left{
     float: left;
     text-align: center;
-    margin-left: 5%;
+    margin-left: 6%;
+    margin-top: 5%;
 }
 
 .under{
@@ -39,7 +40,7 @@ h1 {
 
 .center{
     float: left;
-    margin-left: 25%;
+    margin-left: 10%;
     margin-top: 2%;
     text-align: center;
 }

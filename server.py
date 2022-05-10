@@ -38,7 +38,14 @@ def request_handler(request):
     soil_reading = 'no readings yet'
 
     if request['method'] =="GET":
-        try:
+            if "from" in request["values"].keys() and request["values"]["from"] == "arduino":
+                plantName = request["values"]["name"]
+                user = request["values"]["user"]
+                with sqlite3.connect(plant_sampling_db) as c:
+                    c.execute("""CREATE TABLE IF NOT EXISTS plant_sampling_data (plant text, user text, counter int);""")
+                    sampling = c.execute('''SELECT * FROM plant_sampling_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchone()
+                    return sampling[2]
+            else:
                 plantName = request["values"]["name"]
                 user = request["values"]["user"]
                 with sqlite3.connect(plant_db) as c:
@@ -82,8 +89,8 @@ def request_handler(request):
 
                 
                 return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
-        except:
-            return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
+        # except:
+        #     return htmlString.format(n=plantName, pt= plantType, o=user, s=sunlight, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading)
 
         
     elif request['method'] =="POST":

@@ -13,7 +13,7 @@ const int LOOP_PERIOD = 50;     //speed of main loop
 const int freq = 100;
 const int resolution = 12;
 int loop_timer;                 //used for loop timing
-int sample_timer;                 //used for 2-hour sample timing
+int sample_timer;               //used for 2-hour sample timing
 int num_samples;
 const int thirty_minutes = 500;
 const int full_day = 24000;
@@ -50,6 +50,8 @@ const char NETWORK[] = "MIT GUEST";
 const char PASSWORD[] = "";
 const char user[] = "alexplantbuddy608@gmail.com";
 const char plant[] = "bob";
+int old_count;
+int count;
 //
 //const char NETWORK[] = "608_24G";
 //const char PASSWORD[] = "608g2020";
@@ -168,23 +170,20 @@ void setup() {
 
 void loop() {
 
-    drawEmotion(true);
-    // // constant GET request
-    // sprintf(request_buffer,"GET http://608dev-2.net/sandbox/sc/timmyd/milestone_1/server.py HTTP/1.1\r\n");
-    // strcat(request_buffer,"Host: 608dev-2.net\r\n");
-    // strcat(request_buffer,"\r\n"); //new line from header to body
-    // Serial.println(request_buffer);
-    // do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT,true);
-    // Serial.println(response_buffer);
-    // StaticJsonDocument<200> doc;
-    // DeserializationError error = deserializeJson(doc, response_buffer);
-
-
+    // drawEmotion(true);
+    // constant GET request
+    sprintf(request_buffer,"GET /sandbox/sc/team58/plantbuddy/server.py?user=%s&name=%s&from=arduino HTTP/1.1\r\n", user, plant);
+    strcat(request_buffer,"Host: 608dev-2.net\r\n");
+    strcat(request_buffer,"\r\n"); //new line from header to body
+    do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT,true);
+    old_count = count;
+    count = atoi(response_buffer);
+    
 
   // when GET request tells ESP32 to start new sampling period
   button_state = digitalRead(BUTTON);
 
-  if (!button_state && button_state != old_button_state){
+  if (count != old_count || (!button_state && button_state != old_button_state)){
     clear_screen(tft);
     tft.setCursor(0, 0, 2);
     num_samples = 0;
@@ -219,6 +218,10 @@ void loop() {
 
     sample_timer = millis();
     num_samples += 1;
+
+    tft.setCursor(0, 0, 2); //set cursor
+
+    tft.printf("Your plant absorbed %0.1f foot-candles of sunlight at an average temperature of %0.1f degrees Celsius", sampling_period_sunlight/2.0, temp_count/48.0);
   }
 
   if (millis() - sample_timer > thirty_minutes && num_samples < 48) {
@@ -300,7 +303,7 @@ void clear_screen(TFT_eSPI tft){
   tft.setCursor(0, 0, 2); //set cursor
   tft.fillScreen(TFT_WHITE);
   tft.printf("Sampling");
-
+}
 
 int readSoil(){
     //Use PWM Channel to turn on Soil Pin only when trying to read a value.
@@ -316,8 +319,8 @@ int readSoil(){
 
 void drawEmotion(bool happy){
   tft.fillScreen(TFT_WHITE); //fill background
-  tft.setCursor(0,0,2);
-  if bool == true {
+  tft.setCursor(0,0,10);
+  if (happy == true) {
     tft.print(":)");
   }
   else{
