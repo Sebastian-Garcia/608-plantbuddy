@@ -6,14 +6,14 @@ Having a plant in your life has many benefits. It can help relieve stress, boost
 Introducing Plant Buddy, your new assistant in keeping your plants healthy and happy!
 
 
-![Full System Video](https://youtu.be/JdyyPLY9_Gs)
+![Full Demo Video](https://youtu.be/6G4FIQ_lRlU)
 
 Functionality
 ===============================================================================
 The systems starts in freeplay mode and displays a nice options menu interface to allow the user to change the mode if they want.
 We have implemented the following modes: Freeplay Mode, Recording Mode, Song Mode, and Sequencer Mode.
 
-![FSM for the ESP32](./data/state_machine.png)
+![State Machine Diagram](./images/state_machine.png)
 
 IDLE Mode
 -------------------------------------------------------------------------------
@@ -89,106 +89,84 @@ Documentation
 
 Full System Diagram
 -------------------------------------------------------------------------------
-![Full System Block Diagram](./data/full_system_block_diagram.png)
+![Functional Block Diagram](./images/functional_diagram.png)
 
 Hardware Layout
 -------------------------------------------------------------------------------
-### Hardware Diagram
-
-![Wiring for 1 PT](./data/ptwired.jpg | width=40%)
-
-Here you see the wiring for 1 of the phototransistors (PTs). The red is positive, gray is ground, and the blue wire is the signal wire going directly back to the esp32.
-We have wired up 8 phototransistors in parallel, placing the esp32 in the middle of them. On the other side, there are 3.3V lasers hooked up in parallel to a battery all shooting directly into the PTs.
-A sketch of a diagram including not only the phototransistors but also the LCD, button, microphone, and buzzer/MOSFETs is shown below, as well as the pins used. (all eight buzzers/MOSFETs and phototransistors are not included for simplicity but are wired in parallel)
-
-![Sketch Diagram of Overall Hardware with Table of Pins](./data/hardware_diagram.jpg | width=100%)
-
-### 3-D Printed Laser Holders
-
-The lasers we had were very fragile and were susceptible to shifting slightly.  Because our phototransistors were sensitive to the exact positioning of the laser, we decided to 3-D print holders that would hold the lasers into position.  We printed the mounts so that the head of the laser would fit into the nook of the mount.  We also 3D cut out a piece of the mount so that the wires of the laser could be threaded through and held in place, making our wiring a lot cleaner and also making the connection between the laser wire and the regular wire more stable.  All of this made it much easier for us to set up the AirPiano before playing - all we had to do was to slightly adjust the positioning of the phototransistors.
-
-<p align="middle">
-  <img src="./data/3D_diagram.jpg" width="300" />
-  <img src="./data/3d_mount.jpg" width="300" /> 
-</p> 
-
-<!-- ![Mount Drawing](./data/3D_diagram.jpg | width=50%)
- -->
-<!-- ![Printed Mount](./data/3d_mount.jpg | width=50%) -->
-
-
-
 
 
 Parts List
 -------------------------------------------------------------------------------
-[Laser Diodes](https://www.amazon.com/HiLetgo-10pcs-650nm-Diode-Laser/dp/B071FT9HSV/ref=sr_1_3?dchild=1&keywords=laser+diode&qid=1618513435&s=industrial&sr=1-3)
 
-* Total price: $17.97
-* Use case: Used to point to our phototransistors. When this connection was broken by having a foot placed in front, we would be able to detect on the PT side.
+Photoresistors
 
-[Phototransistor](https://www.adafruit.com/product/2831)
+* Cost: From previous labs
+* Used for measuring amount of light going through
 
-* Total price: $28.50
-* Use case: These were the transducers that actually detected whether or not the laser was being pointed directly at it. 
+LCD Screen
 
-[Small Breadboards](https://www.amazon.com/DaFuRui-tie-Points-Solderless-Breadboard-Compatible/dp/B07KGQ7H8B?th=1)
+* Cost: From previous labs
+* Used for: Displaying steps in sampling plant data, and current conditions
 
-* Total price: $54.95
-* Use case: Used to wire the PTS and the potentiometers that allowed us to the read the signal coming from the PT.
+Temperature/Pressure Sensor
 
-[Velcro Strips](https://www.amazon.com/VELCRO-Brand-Industrial-Fasteners-Professional/dp/B00114LOMM/ref=sr_1_5?dchild=1&keywords=velcro%2Bstrips&qid=1618514379&sr=8-5&th=1)
+* Cost: From previous labs
+* Used for: Measuring if the current environmental conditions were within range for the plant to be considered in a healthy environment, and not one where it would dry out or get damaged. 
 
-* Total price: $14.84
-* Use case: To be able to adjust the PTS and lasers since being off by just a little bit caused the PT to read as if the laser beam was broken.
+[Soil Moisture Sensor](https://www.sparkfun.com/products/13322 )
+
+* Cost: $6.50
+* Used for: Measuring how moist soil was in order to tell whether our plant currently had enough water in its pot. 
+
 
 Design Challenges and Decisions
 -------------------------------------------------------------------------------
 Some challenges in this project included:
-* figuring out how to store the musical notes and convert them into a mp3 or wav file
-* finding solutions to power supply issues with the ESP trying to power so many things at once
-* working with a finitie quantity of digital pins on the ESP32
+* understanding and processing sensor readings to sensible and accurate data 
+* making ESP32 responsive from button press on website
+* implementing a webscraper to scrape ideal conditions on different plants
 
-### Audio Conversion
-We were able to accomplish this by using scipy.io.wavfile to convert our polished audio array into a wav file to store on the server. The main goal here was to create a function *convert_to_wav* that takes in a list of note frequencies (in kHz) and end_times list, representing the timestamp to stop playing a note, in milliseconds. It also takes in a path and filename to save the audio generated from it. For example: <br>
-*convert_to_wav*([440, 554, 657], [250, 750, 1000], ‘airpianoUI/data/audio/’, ‘name1.wav’) will store a wav file at ‘airpianoUI/data/audio/name1.wav’ that plays 440 kHz up until the 250 milliseconds, 554 kHz up until the 750 millisecond mark (so for half a second), and 657 kHz up until the end of the second at 1000 milliseconds.
-Here is the function, abbreviated for space:
+### Understanding Sensor Readings
+text
+
+### Connecting ESP32 with Website
+text
+
+### Webscraper
+One of the things we wanted for our design was a list in which users could select a plant from. Those plants would already have ideal sunlight, temperature, and moisture levels associated with them, so users didn’t have to manually input it. We planned on doing this by webscraping a plant website, since there were no available APIs that did that. However, webscraping was not taught about in class and nobody on the team knew how to do it. Regardless, we managed to figure it out during the Week 2 Milestone. In the end though, we decided not to use the data from the webscraper and instead we hard coded a few of the most common household plants. There was just too many plants in the database (over 1500) and it lacked temperature ranges for the plant, so we would have had to webscrape another page and join the two together. The soil and moisture readings also were different than how we processed ours, so it just didn’t work out. The webscraper code isn't part of the final code, but can be found below:
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def convert_to_wav(freqs:list, times:list, filename="test.wav", path="./"):
-    #* converts the millis times to seconds!
-    times = [int(time)/1000 for time in times] 
+import requests
+from bs4 import BeautifulSoup
+import re
+import pandas as pd
+import sqlite3
 
-    sample_rate = 44100
-    notes = []
+plant_web_db = '/Users/timmydang/downloads/6.08/608-plantbuddy/plant_web.db' 
 
-    past_time = 0 
-    for freq, time in zip(freqs, times):
-        duration = time - past_time
+names_list = []
+moisture_list = []
+shade_list = []
+for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+    URL = 'https://pfaf.org/user/DatabaseSearhResult.aspx?LatinName={web_letter}%'.format(web_letter=letter)
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'}
+    page = requests.get(URL, headers=headers)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    dfs = pd.read_html(page.text)
+    info_setup = dfs[1]
+    info = info_setup[['Common Name', 'Moisture', 'Shade']].dropna()
+    names_list += info['Common Name'][0:len(info['Common Name'])].tolist()
+    moisture_list += info['Moisture'][0:len(info['Moisture'])].tolist()
+    shade_list += info['Shade'][0:len(info['Shade'])].tolist()
 
-        t = np.linspace(0, duration, int(duration * sample_rate), True)
-        note = np.sin(freq * t * 2 * np.pi)
-
-        notes.append(note)
-        past_time = time
-
-    # concatenate notes
-    audio = np.hstack(notes)
-    # normalize to 16-bit range
-    audio *= 32767 / np.max(np.abs(audio))
-    # convert to 16-bit data
-    audio = audio.astype(np.int16)
-
-    # save it as wav file
-    wavf.write(path+filename, sample_rate, audio)
-
-    return path+filename
+with sqlite3.connect(plant_web_db) as c:
+    for i in range(len(names_list)):
+        plant = names_list[i]
+        sunlight = shade_list[i]
+        moisture = moisture_list[i]
+        c.execute("""CREATE TABLE IF NOT EXISTS plant_web (plant text, moisture real, sunlight real);""")
+        c.execute('''INSERT into plant_web VALUES (?,?,?);''',(plant,sunlight, moisture))
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-### Multiple Notes and Power Supply
-An issue we ran into when trying to integrate the multiple_notes code with our main ESP32 code was that due to so many things being hooked up onto one ESP (8 phototransistors, 8 buzzers/MOSFET channels, microphone, LCD, button, LEDs) often there wasn't enough power supply to successfully power up the LCD screen. Our solution was that we would break this up into two separate code bodies and have a separate code specifically for the multiple notes. We could have potentially fixed this power supply problem by hooking up less buzzers (instead of using a buzzer for each stair totaling to eight -- perhaps we could have done just three or four buzzers since usually an individual wouldn't play more than four notes at once), but in some ways our solution in separating the code could be justified. Being able to play multiple notes works better in situations where there is high traffic along the stairs and people are just walking down/up the stairs (which is the usual case in the real world), where as our main ESP32 code is better suited for when an individual specifically wants to stop and play with the different modes of the Air Piano by him/herself. Thus, we decided it might be best to separate the mutliple_notes code from the main ESP32 code.
-
-### Quantity of Digital Pins
-Although a smaller issue with an easy fix, we also ran into an issue where we did not have enough digital pins to hook the phototransistors up to on the ESP. Our solution was that for one of the stairs we would do an analogRead instead and just set a threshold value for that, where the other stairs were being "digitalRead-ed" (which is why one of the phototransistors is hooked to A3).
 
 Detailed Code Layout
 ===============================================================================
@@ -232,22 +210,19 @@ This figure shows some of the most important parts of our server side elements:
 **********************************************************
 
 ### server.py - Selecting a plant type from list 
-On our HTML page, users can select a plant from a list containing a few of the most common household plants. When they press submit button on the page, it will send a POST request to the server, collecting information about the user’s email, the plant’s name, and one of the plant types from the list. Depending on the plant type, the sunlight, temperature, and moisture levels will be set. It creates plant_db and plant_sampling_db if it doesn’t exist and then inserts values into the database. The values that are inserted into these databases are specified a few sections below.
+On our HTML page, users can select a plant from a list containing a few of the most common household plants. When they press submit button on the page, it will send a POST request to the server, collecting information about the user’s email, the plant’s name, and one of the plant types from the list. Depending on the plant type, the sunlight, temperature, and moisture levels will be set. It creates plant.db and plant_sampling.db if it doesn’t exist and then inserts values into the database. The values that are inserted into these databases are specified a few sections below.
 
 ### server.py - Adding a new plant type
 If a plant the user is looking for is not on the list, users can add a new type by manually inputting plant name, plant type, user email, sunlight intensity, hours of sunlight, ideal temperature, and soil moisture percentage and pressing submit on the HTML page to send a POST request to the server. Adding a new plant type will essentially follows the same procedure as selecting a plant type from a list but in this case the sunlight, temperature, and moisture levels are set by the user instead of automatically being set on the server. 
 
 ### server.py - Getting information from an existing plant
-Users can get information about an existing plant from plant_db by inputting the plant’s name and user email and then pressing submit. This will send a GET request to the server, which will look into the plant_db database with the plant’s name and user email that was inputted from the HTML page.
+Users can get information about an existing plant from plant.db by inputting the plant’s name and user email and then pressing submit. This will send a GET request to the server, which will look into the plant.db database with the plant’s name and user email that was inputted from the HTML page.
 
 ### server.py - Starting new sampling period
 --text--
 
 ### server.py - Plant Logic
---text–
-
-### server.py - Sending Notifications
---text--
+There is a function in the server, do_plant_logic, with the parameters plant and user, that compares the inputted values from plant.db with the sensor readings from plant_sampling.db whenever a sampling period is requested. It will return a message about the plant's temperature, sunlight, and moisture depending on the differences between the inputted values and the readings. For temperature, the ideal range is within 5 degrees Celsius. If it’s below that then the message will be “Your plant is too cold! :(“ and if it’s more than that then the message will be “Your plant is too hot! :(“. The other readings follow the same procedure, except the range for sunlight is 500 foot candles hours and the range for moisture is 10 percent. In addition, sunlight is calculated in this function by multiplying sunlight hours (inputted by the user) by sunlight intensity. Low, medium, and high sunlight intensity in our code corresponds to 50, 300, and 750 foot candles, respectively.
 
 ### plantPage.html
 Contains the HTML code for our page.
@@ -259,8 +234,8 @@ Contains Cascading Styling Sheet (CSS) used by our HTML page.
 
 This database contains information about each plant with the following information:
 
-* `plant`, a name given to the plant manually inputted by the user
-* `type`,  type of plant, either manually inputted by the user or selected from a list
+* `plant`: a name given to the plant manually inputted by the user
+* `type`:  type of plant, either manually inputted by the user or selected from a list
 * `user`: email of the user manually inputted by the user
 * `sunlight_intensity`: the ideal sunlight intensity for the plant, either manually inputted from the user or automatically given if the user selects a plant type from the list
 * `sunlight_hours`: the ideal sunlight hours for the plant, either manually inputted from the user or automatically given if the user selects a plant type from the list
@@ -278,8 +253,8 @@ For example:
 
 This database contains information on a plant's current conditions with readings from sensors on the ESP32 side. 
 
-* `plant`, a name given to the plant manually inputted by the user
-* `type`,  type of plant, either manually inputted by the user or selected from a list
+* `plant`: a name given to the plant manually inputted by the user
+* `type`:  type of plant, either manually inputted by the user or selected from a list
 * `user`: email of the user manually inputted by the user
 * `sunlight_reading`: sunlight reading using a sensor sent from ESP32
 * `temperature_reading`: temperature reading using a sensor sent from ESP32
@@ -289,17 +264,17 @@ For example:
 
 | plant |            type            | user |         sunlight_reading         |       temperature_reading       | moisture_reading |
 |:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:| :----------------:|
-| Bob |       Fern      |     timmyd@mit.edu    | 2000 | 23 | 10 |
-| Bobbie | Snake Plant |       alexplantbuddy608@gmail.com      | 2000 | 22 | 10 |
+| Bob |       Fern      |     timmyd@mit.edu    | 2000 | 23 | 40 |
+| Bobbie | Snake Plant |       alexplantbuddy608@gmail.com      | 2000 | 22 | 60 |
 
 
 ### plant_sampling.db   
 
---text--
+This database contains information on a plant's name and its user. The ESP32 runs GET requests to the server, checking to see if counter for a plant has changed or not. If it does change, then it runs a sampling period.
 
-* `plant`, a name given to the plant manually inputted by the user
+* `plant`: a name given to the plant manually inputted by the user
 * `user`: email of the user manually inputted by the user
-* `counter`: --text--
+* `counter`: an integer which will be incremented by 1 when sampling period is requested on the website
 
 
 For example:
@@ -335,37 +310,36 @@ The sensors were connected last week, and this week, they were translated into v
 
 ![Adjusted soil readings part two](https://youtu.be/M1OA_fDYUh8)
 
-![Timmy](https://drive.google.com/file/d/1hKSy2rqLAgf4GayUgGYKSxTNflQtvBrG/view?usp=sharing)
+![Webscraper](https://www.youtube.com/watch?v=fWM6FreES1Y&ab_channel=ErinZhang)
 
-![Web 1](https://drive.google.com/file/d/1qJGUfHMxlWl7zOqzh07ocbwfXALX2lat/view?usp=sharing)
+![Website POST request](https://www.youtube.com/watch?v=AwYLNxZAfaE&ab_channel=ErinZhang)
 
-![Web 2](https://drive.google.com/file/d/1NCbF19KWdXPbxsvskZXmwiEAxLq8-uhX/view?usp=sharing)
 
 ## Week 3
 
 This week, the ESP32 state machine was cleaned up to handle situations where there was no plant, as well as monitoring and idle states. The sensor work had been divided previously amongst members, so it was also important to combine that work onto one machine. The web interface was finalized to display current conditions of a plant, and most importantly, the data acquired in the previous week, the server, the database, and the ESP32/sensors were all integrated. We also began to work on a script that would notify users if a plant needed to be watered, moving forward into the real user-catered function of this project.
 
-![Erin](https://drive.google.com/file/d/1e2k5Q3mEo2NxakONrN4l2P25FOJYznbD/view?usp=sharing)
+![Website submission](https://youtu.be/9SpsNbZoTxQ)
 
-![Sebastian](https://drive.google.com/file/d/1_o-JYlRUCPGNBiiZy5IMxK0Tyh1qs0qx/view?usp=sharing)
+![Timmy + Alex](https://www.youtube.com/watch?v=hQt1pPPDmig&ab_channel=Hermonkayshag)
 
-![Timmy + Alex](https://drive.google.com/file/d/1AlCLaXzWOAobL5-1XOeprJqCKMMLEAF7/view?usp=sharing)
+![Website + ESP32 Integration](https://youtu.be/TYxHQJ4rYlI)
 
 ## Week 4
 
 To simplify the user experience, we manually categorized the moisture levels. We also manually added some common household plants to the database. More importantly, the website was updated to be more aesthetically pleasing and to start a sampling process after prompting. We added the feature of being able to see how the plant was doing based on a smiley or sad face on the LCD, and finally, confirmed that the project worked on other devices by creating it again on another ESP.
 
-![Alex](https://drive.google.com/file/d/1PbHT6VutJDg3yDE4CzCGL8FUT6CJ_y2u/view?usp=sharing)
+![Sampling for one plant](https://youtu.be/e8ASfosAH7c)
 
-![Alex 2](https://drive.google.com/file/d/1mBEvRwv2IzEHwrfW1G_Ae8mHm4aDKQUk/view?usp=sharing)
+![Sampling for two plants part one](https://youtu.be/I7NWsdkbBCQ)
 
-![Alex 3](https://drive.google.com/file/d/1WMhBNQDxwFzRmof2iY4JkHaP9RCiWX7a/view?usp=sharing)
+![Sampling for two plants part two](https://www.youtube.com/watch?v=8KWJfZA8wxo&ab_channel=Hermonkaysha)
 
-![Timmy](https://drive.google.com/file/d/1IVqdi_bAQ06Gd_y_KbGQqOKaKGOjYhC2/view?usp=sharing)
+![Choosing a plant from the list](https://www.youtube.com/watch?v=1phFPULacB0&ab_channel=Hermonkaysha)
 
-![Sebastian](https://drive.google.com/file/d/11p2lgdDel3tinY1EJX5bFAo_plnHDgLP/view?usp=sharing)
+![Switching between plants](https://youtu.be/RDf9pLlycqk)
 
-![Sebastian 2](https://drive.google.com/file/d/11hbysj4GFL9qb66UJOcy91pCpSYFTMmV/view?usp=sharing)
+![LCD Display](https://www.youtube.com/watch?v=WPmBSBvzq24&ab_channel=Hermonkaysha)
 
 Team Members
 ===============================================================================
