@@ -123,42 +123,42 @@ def request_handler(request):
                 plantType = request['form']['type']
 
                 if plantType == 'Snake Plant':
-                    sunlight_intensity = 1393
+                    sunlight_intensity = 'High'
                     sunlight_hours = 9
                     temperature = 21
                     moisture = 20
                 elif plantType == 'Peace Lily':
-                    sunlight_intensity = 300
+                    sunlight_intensity = 'Medium'
                     sunlight_hours = 17
                     temperature = 22
                     moisture = 60
                 elif plantType == 'Fiddle Leaf Fig':
-                    sunlight_intensity = 500
+                    sunlight_intensity = 'Medium'
                     sunlight_hours = 7
                     temperature = 21
                     moisture = 30
                 elif plantType == 'Philodendron':
-                    sunlight_intensity = 400
+                    sunlight_intensity = 'Medium'
                     sunlight_hours = 7
                     temperature = 27
                     moisture = 60
                 elif plantType == 'ZZ Plant':
-                    sunlight_intensity = 100
+                    sunlight_intensity = 'Low'
                     sunlight_hours = 12
                     temperature = 20
                     moisture = 20
                 elif plantType == 'Pothos':
-                    sunlight_intensity = 300
+                    sunlight_intensity = 'Medium'
                     sunlight_hours = 12
                     temperature = 60
                     moisture = 40
                 elif plantType == 'Majesty Palm':
-                    sunlight_intensity = 750
+                    sunlight_intensity = 'High'
                     sunlight_hours = 7
                     temperature = 21
                     moisture = 60
                 elif plantType == 'Aloe':
-                    sunlight_intensity = 150
+                    sunlight_intensity = 'Low'
                     sunlight_hours = 7
                     temperature = 20
                     moisture = 20
