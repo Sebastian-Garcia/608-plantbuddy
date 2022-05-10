@@ -48,6 +48,8 @@ const uint8_t SOIL_PWM = 0; //Variable for Soil moisture Power, to prevent ongoi
 
 const char NETWORK[] = "MIT GUEST";
 const char PASSWORD[] = "";
+const char user[] = "alexplantbuddy608@gmail.com";
+const char plant[] = "bob";
 //
 //const char NETWORK[] = "608_24G";
 //const char PASSWORD[] = "608g2020";
@@ -197,7 +199,7 @@ void loop() {
   if (num_samples == 48) {
     json_body[0] = '\0';
 
-    sprintf(json_body, "sunlight=%0.1f&temp=%0.1f&moisture=%0.1f&from=arduino", sampling_period_sunlight/2.0, temp_count/48.0, moist_count/48.0);
+    sprintf(json_body, "plant=%s&user=%s&sunlight=%0.1f&temperature=%0.1f&moisture=%0.1f&from=arduino", plant, user, sampling_period_sunlight/2.0, temp_count/48.0, (moist_count/48.0)/4096.0*100.0);
 
     int len = strlen(json_body);
     request[0] = '\0'; //set 0th byte to null

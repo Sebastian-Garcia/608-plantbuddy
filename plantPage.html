@@ -14,31 +14,31 @@
                 <input type="text" id="name" name="name"><br><br>
             <label for="name">Plant Type:</label><br>
                 <input type="text" id="type" name="type"><br><br>
-            <label for="owner">Owner:</label><br>
-                <input type="text" id="owner" name="owner"><br><br>
+            <label for="owner">User Email:</label><br>
+                <input type="text" id="user" name="user"><br><br>
             <label for="light">Hours of sunlight:</label><br>
                 <input type="text" id="light" name="light"><br><br>
-            <label for="temp">Ideal emperature:</label><br>
+            <label for="temp">Ideal temperature:</label><br>
                 <input type="text" id="temp" name="temp"><br><br>
             <label for="temp">Soil moisture percentage:</label><br>
                 <input type="text" id="soil" name="soil"><br><br>
                 <input type="submit" value="Submit">
         </form> 
-        <form action="server.py" method="post" class="center">
+        <form action="server.py" method="get" class="center">
             <div>
                 Already have a plant?
             </div>
             <label for="name">Plant Name:</label><br>
                 <input type="text" id="name" name="name"><br><br>
-            <label for="owner">Owner:</label><br>
-                <input type="text" id="owner" name="owner"><br><br>
+            <label for="owner">User Email:</label><br>
+                <input type="text" id="user" name="user"><br><br>
                 <input type="submit" value="Get my plant">
         </form> 
         <div class="right">
-            <p>The "Submit" button will upload the data to the database.</p>
-            <h2>--------------------------------------------------</h2>
             <h2>Plant Info</h2>
             <a>Plant name: {n}</a>
+            <br>
+            <a>Plant type: {pt}</a>
             <br>
             <a>Plant owner: {o}</a>
             <br>
