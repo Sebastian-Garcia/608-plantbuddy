@@ -123,45 +123,45 @@ def request_handler(request):
                 plantType = request['form']['type']
 
                 if plantType == 'Snake Plant':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 10
-                    moisture = 10
-                elif plantType == 'Peace Lily':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 20
+                    sunlight_intensity = 1393
+                    sunlight_hours = 9
+                    temperature = 21
                     moisture = 20
+                elif plantType == 'Peace Lily':
+                    sunlight_intensity = 300
+                    sunlight_hours = 17
+                    temperature = 22
+                    moisture = 60
                 elif plantType == 'Fiddle Leaf Fig':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 30
+                    sunlight_intensity = 500
+                    sunlight_hours = 7
+                    temperature = 21
                     moisture = 30
                 elif plantType == 'Philodendron':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 40
-                    moisture = 40
-                elif plantType == 'ZZ Plant':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 50
-                    moisture = 50
-                elif plantType == 'Pothos':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 60
+                    sunlight_intensity = 400
+                    sunlight_hours = 7
+                    temperature = 27
                     moisture = 60
+                elif plantType == 'ZZ Plant':
+                    sunlight_intensity = 100
+                    sunlight_hours = 12
+                    temperature = 20
+                    moisture = 20
+                elif plantType == 'Pothos':
+                    sunlight_intensity = 300
+                    sunlight_hours = 12
+                    temperature = 60
+                    moisture = 40
                 elif plantType == 'Majesty Palm':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 70
-                    moisture = 70
+                    sunlight_intensity = 750
+                    sunlight_hours = 7
+                    temperature = 21
+                    moisture = 60
                 elif plantType == 'Aloe':
-                    sunlight_intensity = 'no information yet'
-                    sunlight_hours = 'no information yet'
-                    temperature = 80
-                    moisture = 80
+                    sunlight_intensity = 150
+                    sunlight_hours = 7
+                    temperature = 20
+                    moisture = 20
                 else:
                     moisture = request['form']['soil']
                     sunlight_intensity = request['form']['lightType']
