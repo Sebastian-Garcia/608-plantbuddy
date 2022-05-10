@@ -11,9 +11,8 @@ plant_db = '/var/jail/home/team58/plantbuddy/plant.db'
 plant_reading_db = '/var/jail/home/team58/plantbuddy/plant_reading.db' 
 plant_sampling_db = '/var/jail/home/team58/plantbuddy/plant_sampling.db' 
 
-def send_notification(message, recipient="sebastianag2002@gmail.com"):
+def send_notification(message="", recipient="sebastianag2002@gmail.com"):
 
-    message = "plant moisture levels are low, water in a few days"
     sender = "sebastiandeveloperemail@gmail.com"
     password = "Pikachu44!"
 
@@ -162,6 +161,11 @@ def request_handler(request):
                     sunlight_hours = 7
                     temperature = 20
                     moisture = 20
+                elif plantType == 'Senecio':
+                    sunlight_intensity = 'Medium'
+                    sunlight_hours = 7
+                    temperature = 25
+                    moisture = 80
                 else:
                     moisture = request['form']['soil']
                     sunlight_intensity = request['form']['lightType']
@@ -191,6 +195,7 @@ def request_handler(request):
                 with sqlite3.connect(plant_reading_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
                     c.execute('''INSERT into plant_reading_data VALUES (?,?,?,?,?);''',(plantName,user,sunlight_reading,temp_reading,soil_reading))
+                # send_notification(message=do_plant_logic(plantName, user), recipient=user)
                 return
 
         
@@ -237,15 +242,15 @@ def do_plant_logic(plant, user):
         output_message += "Your plant is just the right temperature :)<br>"
 
     if ideal_sunlight_intensity == "Low":
-        ideal_sunlight = 50 * ideal_sunlight_hours
+        ideal_sunlight = 25 * ideal_sunlight_hours
     elif ideal_sunlight_intensity == "Medium":
-        ideal_sunlight = 300 * ideal_sunlight_hours
+        ideal_sunlight = 100 * ideal_sunlight_hours
     else:
-        ideal_sunlight = 750 * ideal_sunlight_hours
+        ideal_sunlight = 500 * ideal_sunlight_hours
     
-    if (ideal_sunlight - sunlight_reading > 500):
+    if (ideal_sunlight - sunlight_reading > 100):
         output_message += "Your plant needs more sunlight! :(<br>"
-    elif (sunlight_reading - ideal_sunlight > 500):
+    elif (sunlight_reading - ideal_sunlight > 100):
         output_message += "Your plant needs less sunlight! :(<br>"
     else:
         output_message += "Your plant is getting enough sunlight :)<br>"

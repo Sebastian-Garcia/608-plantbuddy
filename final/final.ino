@@ -49,7 +49,7 @@ bool ledOn = false;
 const char NETWORK[] = "MIT";
 const char PASSWORD[] = "";
 const char user[] = "alexplantbuddy608@gmail.com";
-const char plant[] = "jeff";
+const char plant[] = "patrick";
 int old_count;
 int count;
 //
@@ -212,9 +212,9 @@ void loop() {
     offset += sprintf(request + offset, "%s\r\n", json_body);
     do_http_request("608dev-2.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 
-    Serial.println("-----------");
-    Serial.println(response);
-    Serial.println("-----------");
+    // Serial.println("-----------");
+    // Serial.println(response);
+    // Serial.println("-----------");
 
     sample_timer = millis();
     num_samples += 1;
@@ -268,6 +268,7 @@ float sample_brightness(){
     brightness = averaging_filter(input, stored_values, 50, &index);
   }
 
+  Serial.println(brightness);
   return brightness;
 }
 
