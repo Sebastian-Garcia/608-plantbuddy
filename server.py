@@ -63,9 +63,9 @@ def request_handler(request):
                     with sqlite3.connect(plant_reading_db) as c:
                         c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
                         readings = c.execute('''SELECT * FROM plant_reading_data WHERE plant = ? AND user = ? ORDER BY rowid DESC LIMIT 1;''', (plantName, user)).fetchall()
-                        sunlight_reading = readings[0][0]
-                        temp_reading = readings[0][1]
-                        soil_reading = readings[0][1]
+                        sunlight_reading = readings[0][2]
+                        temp_reading = readings[0][3]
+                        soil_reading = readings[0][4]
 
                         soil_reading_percent = soil_reading/4096
 
@@ -159,6 +159,7 @@ def request_handler(request):
 
             # handle arduino post request
             elif 'form' in request.keys() and 'from' in request["form"] and 'arduino' == request["form"]['from']:
+                
                 info = request["form"]
                 plantName = info["name"]
                 user = info["user"]
