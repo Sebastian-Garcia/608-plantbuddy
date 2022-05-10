@@ -1,0 +1,405 @@
+<meta charset="utf-8" emacsmode="-*- markdown -*-">
+**Plant Buddy - Final Report**
+
+Having a plant in your life has many benefits. It can help relieve stress, boost creativity, improve productivity, and a bunch of other benefits to one’s well-being and health. Yet, taking care of plants can be difficult. Different types of plants require different amounts of sunlight and water and it can be hard to remember the needs of each specific plant. In addition, life simply can get busy. Sometimes, you might forget to water your plant or forget when the last time you watered your plant was. You might also have left your plant out in the sun for too long, or not long enough. So many things can go wrong which can ultimately and unfortunately cause the plant to die. Don’t you wish there was an easy way to keep track of your plant's needs?
+
+Introducing Plant Buddy, your new assistant in keeping your plants healthy and happy!
+
+
+![Full System Video](https://youtu.be/JdyyPLY9_Gs)
+
+Functionality
+===============================================================================
+The systems starts in freeplay mode and displays a nice options menu interface to allow the user to change the mode if they want.
+We have implemented the following modes: Freeplay Mode, Recording Mode, Song Mode, and Sequencer Mode.
+
+![FSM for the ESP32](./data/state_machine.png)
+
+IDLE Mode
+-------------------------------------------------------------------------------
+Our system’s default state will be this “idle” state where nothing happens if you walk up the stairs/through the pathway. 
+We added this just in case people want to turn off the system at night without unplugging the ESP32.
+
+Freeplay Mode
+-------------------------------------------------------------------------------
+The “free play” mode of the system will detect the user’s steps and as a result, a corresponding frequency will be played on the buzzer. 
+We define a "step" as every time the laser beam is broken when a foot is placed between the laser and the phototransistor.  We integrated an LED strip to light up with every step that is taken on the stairs.  In this mode, only the most recently broken laser beam's frequency and light will play.
+
+
+Multinote Mode
+-------------------------------------------------------------------------------
+Multinote is able to play multiple notes at once, using 8 distinct buzzers each dedicated to one of the laser/phototransistor pairs on the stairs. Playing notes is done in a similar manner to the other modes, but its capabilities are extended by using arrays.  The array index tracks the stair's corresponding buzzer, phototransistor,  light strip, and the previous note played on this stair to avoid continuously playing the note and flashing the LEDS.
+
+We were unable to integrate this mode with the rest of the system due to power issues.  As a result, this mode is a standalone capability not integrated with AirPiano's freeplay, recording, and sequencer modes.  
+
+![Multinote Separate Functionality](https://youtu.be/cYSi2LqmWaQ)
+
+
+
+Recording Mode
+-------------------------------------------------------------------------------
+![Recording Mode States](./data/recording_mode.png)
+
+The “recording” state will allow a user to record their musical steps and send that to a database where their friends can see the music they made and play it back on the site. 
+They first enter the "pre-recording" state where the user reads a description of the mode and must push a button to proceed. Then their sequence of steps and their respective notes will be recorded. The user is able to end the recording when they are satisfied with what they have or the recording will automatically end when the recording buffer is full.
+They will then be asked if the are sure they want to send that song to the server. If not, they leave the recording mode. If they do, then they give it a name with the Google Speech API and the second core is utilized to send the song information via HTTP POST request. The user has the chance to rename the song if the API transcribes the incorrect words. Then, by using the second core the user can immediately get back to playing in Free Play without waiting for the ESP32 to POST the recording to the server.
+
+The second core is used to POST recordings by keeping track of a global variable. The recording mode once it has finished recording and naming the song sets this variable to a value of `1`. Subsequently, the second core waits on this value to be `1`, and if it is will post the notes recorded and the name of the song. It will then set the variable back to `0` once it is done. To protect against the possibility of the user entering the Recording Mode again before the second core has recorded the song, there is a check at the start of the Recording Mode to wait until the variable is set to `0`, signaling that the second core is ready to POST another recording.
+
+Song Mode
+-------------------------------------------------------------------------------
+The song mode allows the user to play a recorded song that was saved to the database. 
+
+The first step is performing a GET request to retrieve the last 5 IDs + song names posted to the server.  The IDs + names are then printed to the tft screen, and the user selects one of the names with the button.  We then perform a second GET request using the ID of the song.  This pulls down the arrays for frequencies and times that each freqency should play for.  We then use these arrays to play the notes on the buzzers, and get the corresponding LEDs to light up.  
+
+
+Seqeuncer Mode
+-------------------------------------------------------------------------------
+The sequencer mode allows the user to play along with themselves by playing back the notes in a loop. 
+There is a set delay interval between when the user plays a note, and when the additional copy of the note is played again. 
+To ensure that there does not end up being a constant amount of notes played such that it sounds bad, the multiple repetitions 
+of any note was limited to a constant number. 
+Further experimentation on what the exact delay length and the number of repetitions needed to provide the user the ability to improvise with themselves would be helpful.
+
+To record when the notes are played in the loop, the loop length was split into distinct buckets in an array. Currently, there are `500` buckets that a note could be put within. The loop length that was decided to be 2 seconds based on a typical 120 beats per minute giving half a second per quarter note. As there are typically 4 notes to a bar, that gives a bar length of two seconds. Therefore, these 500 buckets evenly divide the space of the two seconds. This gives us enough time resolution with when notes are played by a user and when they actually repeat without sacrificing performance or storage space. 
+
+Along with the array that tracks when frequencies are played, there is also an array that keeps track of how many times the note can repeat before stopping. This is to solve the issue where as a user adds more and more notes to the loop, there is no good current way to remove notes. So currently, all notes will play 7 times before disappearing, allowing room for the user to continue playing new rhythms and notes. An alternative to this solution could have been to dedicate one of the lasers to playing silence, but considering this would have been different from all of the other modes, it would have been unintuitive.
+
+Notification LED
+-------------------------------------------------------------------------------
+A small function runs on the second core periodically and pings the server with a GET request. This request queries to determine whether new songs have been posted to the server from a different AirPiano from itself in the time period since its last ping. Depending on the number of new songs, the LED will blink green that many times to notify the user to either check the website to see the new songs or enter song mode and play them on their ESP32. This notification provides the user extra ease of use of the system and encourages exploring the songs created by other people.
+
+To ensure that the user will actually notice the LED, its normal state shines red so that it is a stark contrast when the green appears. If only a single song has been posted since the last query, it will linger on the green color for an longer amount of time compared to usual so that the user has a better chance of catching the notification.
+
+The Baker side of the team did not have notification LEDs flashing in their implementation because they did not have any more pins for more LEDs.  However, it is still a fully function implementation if there were more pins available.
+
+AirPiano Server/Website
+-------------------------------------------------------------------------------
+We were able to utilize the server for GET/POST requests coming from the esp32 in various states. 
+We wrote various scripts that would allow us to perform tasks like POSTing song data from the esp32, retrieving recent entries, and retreiving the notes to a specfic song.
+Apart from this, we also made a website to accompany our project that featured 2 main pages:
+
+* Home Page - gives user a project overview and allows them to search for a specific song
+* Database Page - allows user to see the most recent entries posted to the server and play the songs
+* Song Page - a potential page that would allow for future scaling of the project, where users could one day place comments for a specific song
+* Meet the Team Page - team member profiles 
+
+Documentation
+===============================================================================
+
+Full System Diagram
+-------------------------------------------------------------------------------
+![Full System Block Diagram](./data/full_system_block_diagram.png)
+
+Hardware Layout
+-------------------------------------------------------------------------------
+### Hardware Diagram
+
+![Wiring for 1 PT](./data/ptwired.jpg | width=40%)
+
+Here you see the wiring for 1 of the phototransistors (PTs). The red is positive, gray is ground, and the blue wire is the signal wire going directly back to the esp32.
+We have wired up 8 phototransistors in parallel, placing the esp32 in the middle of them. On the other side, there are 3.3V lasers hooked up in parallel to a battery all shooting directly into the PTs.
+A sketch of a diagram including not only the phototransistors but also the LCD, button, microphone, and buzzer/MOSFETs is shown below, as well as the pins used. (all eight buzzers/MOSFETs and phototransistors are not included for simplicity but are wired in parallel)
+
+![Sketch Diagram of Overall Hardware with Table of Pins](./data/hardware_diagram.jpg | width=100%)
+
+### 3-D Printed Laser Holders
+
+The lasers we had were very fragile and were susceptible to shifting slightly.  Because our phototransistors were sensitive to the exact positioning of the laser, we decided to 3-D print holders that would hold the lasers into position.  We printed the mounts so that the head of the laser would fit into the nook of the mount.  We also 3D cut out a piece of the mount so that the wires of the laser could be threaded through and held in place, making our wiring a lot cleaner and also making the connection between the laser wire and the regular wire more stable.  All of this made it much easier for us to set up the AirPiano before playing - all we had to do was to slightly adjust the positioning of the phototransistors.
+
+<p align="middle">
+  <img src="./data/3D_diagram.jpg" width="300" />
+  <img src="./data/3d_mount.jpg" width="300" /> 
+</p> 
+
+<!-- ![Mount Drawing](./data/3D_diagram.jpg | width=50%)
+ -->
+<!-- ![Printed Mount](./data/3d_mount.jpg | width=50%) -->
+
+
+
+
+
+Parts List
+-------------------------------------------------------------------------------
+[Laser Diodes](https://www.amazon.com/HiLetgo-10pcs-650nm-Diode-Laser/dp/B071FT9HSV/ref=sr_1_3?dchild=1&keywords=laser+diode&qid=1618513435&s=industrial&sr=1-3)
+
+* Total price: $17.97
+* Use case: Used to point to our phototransistors. When this connection was broken by having a foot placed in front, we would be able to detect on the PT side.
+
+[Phototransistor](https://www.adafruit.com/product/2831)
+
+* Total price: $28.50
+* Use case: These were the transducers that actually detected whether or not the laser was being pointed directly at it. 
+
+[Small Breadboards](https://www.amazon.com/DaFuRui-tie-Points-Solderless-Breadboard-Compatible/dp/B07KGQ7H8B?th=1)
+
+* Total price: $54.95
+* Use case: Used to wire the PTS and the potentiometers that allowed us to the read the signal coming from the PT.
+
+[Velcro Strips](https://www.amazon.com/VELCRO-Brand-Industrial-Fasteners-Professional/dp/B00114LOMM/ref=sr_1_5?dchild=1&keywords=velcro%2Bstrips&qid=1618514379&sr=8-5&th=1)
+
+* Total price: $14.84
+* Use case: To be able to adjust the PTS and lasers since being off by just a little bit caused the PT to read as if the laser beam was broken.
+
+Design Challenges and Decisions
+-------------------------------------------------------------------------------
+Some challenges in this project included:
+* figuring out how to store the musical notes and convert them into a mp3 or wav file
+* finding solutions to power supply issues with the ESP trying to power so many things at once
+* working with a finitie quantity of digital pins on the ESP32
+
+### Audio Conversion
+We were able to accomplish this by using scipy.io.wavfile to convert our polished audio array into a wav file to store on the server. The main goal here was to create a function *convert_to_wav* that takes in a list of note frequencies (in kHz) and end_times list, representing the timestamp to stop playing a note, in milliseconds. It also takes in a path and filename to save the audio generated from it. For example: <br>
+*convert_to_wav*([440, 554, 657], [250, 750, 1000], ‘airpianoUI/data/audio/’, ‘name1.wav’) will store a wav file at ‘airpianoUI/data/audio/name1.wav’ that plays 440 kHz up until the 250 milliseconds, 554 kHz up until the 750 millisecond mark (so for half a second), and 657 kHz up until the end of the second at 1000 milliseconds.
+Here is the function, abbreviated for space:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def convert_to_wav(freqs:list, times:list, filename="test.wav", path="./"):
+    #* converts the millis times to seconds!
+    times = [int(time)/1000 for time in times] 
+
+    sample_rate = 44100
+    notes = []
+
+    past_time = 0 
+    for freq, time in zip(freqs, times):
+        duration = time - past_time
+
+        t = np.linspace(0, duration, int(duration * sample_rate), True)
+        note = np.sin(freq * t * 2 * np.pi)
+
+        notes.append(note)
+        past_time = time
+
+    # concatenate notes
+    audio = np.hstack(notes)
+    # normalize to 16-bit range
+    audio *= 32767 / np.max(np.abs(audio))
+    # convert to 16-bit data
+    audio = audio.astype(np.int16)
+
+    # save it as wav file
+    wavf.write(path+filename, sample_rate, audio)
+
+    return path+filename
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### Multiple Notes and Power Supply
+An issue we ran into when trying to integrate the multiple_notes code with our main ESP32 code was that due to so many things being hooked up onto one ESP (8 phototransistors, 8 buzzers/MOSFET channels, microphone, LCD, button, LEDs) often there wasn't enough power supply to successfully power up the LCD screen. Our solution was that we would break this up into two separate code bodies and have a separate code specifically for the multiple notes. We could have potentially fixed this power supply problem by hooking up less buzzers (instead of using a buzzer for each stair totaling to eight -- perhaps we could have done just three or four buzzers since usually an individual wouldn't play more than four notes at once), but in some ways our solution in separating the code could be justified. Being able to play multiple notes works better in situations where there is high traffic along the stairs and people are just walking down/up the stairs (which is the usual case in the real world), where as our main ESP32 code is better suited for when an individual specifically wants to stop and play with the different modes of the Air Piano by him/herself. Thus, we decided it might be best to separate the mutliple_notes code from the main ESP32 code.
+
+### Quantity of Digital Pins
+Although a smaller issue with an easy fix, we also ran into an issue where we did not have enough digital pins to hook the phototransistors up to on the ESP. Our solution was that for one of the stairs we would do an analogRead instead and just set a threshold value for that, where the other stairs were being "digitalRead-ed" (which is why one of the phototransistors is hooked to A3).
+
+Detailed Code Layout
+===============================================================================
+
+ESP32 Side
+-------------------------------------------------------------------------------
+This figure shows some of the most important parts of our code run on the ESP32:
+**********************************************************
+*            Server-side                                 *
+*  .------------------------------.                      *
+* |     /                          |                     *
+* |     |                          |                     *
+* |     +--hardware_setup/         |                     *
+* |     |  |                       |                     *
+* |     |  +-- frequency_change.ino|                     *
+* |     |  +-- stair_laser.ino     |                     *
+* |     |  +-- track_stairs.ino    |                     *
+* |     |                          |                     *
+* |     +-- AirPianoESP32.ino      |                     *
+* |     |                          |                     *
+* |     +-- pins.h                 |                     *
+* |     +-- ui_constants.h         |                     *
+* |     +-- http_constants.h       |                     *
+* |     |                          |                     *
+* |     +-- google-speech.h        |                     *
+* |     +-- google-speech.cpp      |                     *
+* |     |                          |                     *
+* |     +-- support_functions.h    |                     *
+* |     +-- support_functions.cpp  |                     *
+* |     |                          |                     *
+* |     +-- classy-button.h        |                     *
+*  '------------------------------'                      *
+**********************************************************
+
+### hardware_setup/
+
+The scripts in this folder were initially used to test out interfacing with the phototransistors and and the lasers in order to play notes. They are the only code here not run on the ESP32 for the final project.
+
+### AirPianoESP32.ino
+
+This is where the main loop and state machine of the system runs. The setup and loop functions are at the end of the file and the function `draw_menu` is where most helper functions are called from and how state transitions are implemented.
+
+### pins.h
+
+A file containing the pins used for different devices such as the button and phototransistors on each stair. 
+
+### ui_constants.h
+
+This file contains the string constants used when displaying static messages to the user about the current mode and how to interface with the system.
+
+### http_constants.h
+
+This file contains constants involved with connecting to WiFi and making HTTP requests. It also defines a struct with both the request and response buffers for easier organization.
+
+### google-speech(.h/.cpp)
+
+This file is based off of the Google Speech API lab with minor tweaks to interface with the main body of the code better and give users feedback on the progress in the form of ellipses on the display.
+
+### support_functions(.h/.cpp)
+
+This file provides the functions necessary to send and recieve HTTP requests and responses. The header file was created so that it could be used in both the main file and the google speech file.
+
+### classy-button.h
+
+The button implementation used that allows us to detect both short and long presses. Taken directly from the exercise without any needed modifications.
+
+Server Side
+-------------------------------------------------------------------------------
+This figure shows some of the most important parts of our server side elements:
+**********************************************************
+*            Server-side                                 *
+*  .------------------------------.                      *
+* |     +-- server.py              |                     *
+* |     +-- plantPage.html         |                     *
+* |     +-- plantPage.css          |                     *
+* |     +-- plant.db               |                     *
+* |     +-- plant_reading.db       |                     *
+* |     +-- plant_sampling.db      |                     *
+*  '------------------------------'                      *
+**********************************************************
+
+### server.py
+--text--
+
+### plantPage.html
+--text--
+
+### plantPage.css 
+Contains cascading styling sheet (CSS) used by our HTML page.
+
+### plant.db 
+
+* `plant`, a unqiue identification number: used to retrieve notes back to the esp32
+* `type`, name given by user: this is done in the recording state of the system
+* `user`: tells us which esp32 posted this song
+* `sunlight`: the note frequencies of the song as sent by the esp32
+* `temperature`: used to tell us when to stop playing a certain frequency
+* `moisture`, a timestamp: used when sorting by most recent songs
+
+For example:
+
+| plant |            type            | user |         sunlight         |       temperature       |        moisture       |
+|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|
+| 54 |       i want you back      |     Jackson5    | *playable file here* | 2021-05-09 14:57 | 2021-05-09 14:57 |
+| 53 | never going to give you up |       Rick      | *playable file here* | 2021-05-09 14:53 | 2021-05-09 14:57 |
+
+### plant_reading.db  
+* `plant`, a unqiue identification number: used to retrieve notes back to the esp32
+* `type`, name given by user: this is done in the recording state of the system
+* `user`: tells us which esp32 posted this song
+* `sunlight_reading`: the note frequencies of the song as sent by the esp32
+* `temperature_reading`: used to tell us when to stop playing a certain frequency
+* `moisture_reading`, a timestamp: used when sorting by most recent songs
+
+For example:
+
+| ID |            Name            | Author/Location |         Song         |       Date       |
+|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|
+| 54 |       i want you back      |     Jackson5    | *playable file here* | 2021-05-09 14:57 |
+| 53 | never going to give you up |       Rick      | *playable file here* | 2021-05-09 14:53 |
+
+
+### plant_sampling.db   
+* `plant`, a unqiue identification number: used to retrieve notes back to the esp32
+* `user`, name given by user: this is done in the recording state of the system
+* `counter`: tells us which esp32 posted this song
+
+
+For example:
+
+| ID |            Name            | Author/Location |         Song         |       Date       |
+|:--:|:--------------------------:|:---------------:|:--------------------:|:----------------:|
+| 54 |       i want you back      |     Jackson5    | *playable file here* | 2021-05-09 14:57 |
+| 53 | never going to give you up |       Rick      | *playable file here* | 2021-05-09 14:53 |
+
+
+Webscraper
+-------------------------------------------------------------------------------
+live, laugh, love. it did not work man
+
+Milestone Contributions
+===============================================================================
+
+Here are the weekly milestones seperated into 4 categories based on how much they contributed to a particular functionality of the system.
+
+## Free Play Functionality
+
+![Send sensor reading to the Serial monitor, and have a way of differentiating between frequencies coming from different devices.](https://youtu.be/tPlnKJwN2B8)
+
+![Free Play Mode](https://www.youtube.com/watch?v=7khlS5T2DDA)
+
+![Make Free Play More Robust and Print Remaining Mounts](https://youtu.be/cFbvw4tXOsw)
+
+![Implement variation of Free Play playing multiple notes at once](https://youtu.be/XbiTXVIhxX8)
+
+## Secondary Modes Functionality
+
+![Naming Recordings using Google’s Speech API](https://youtu.be/RsjL2jiu4qo)
+
+![Recording Mode](https://youtu.be/EJsaIk916sU)
+
+![Song Mode](https://youtu.be/LdR9eLXJE98)
+
+![Integrate Song Mode into Main Body of Code](https://youtu.be/fyiZQ1chhIA)
+
+![Updated Song Mode with Lights](https://youtu.be/8gBDn5RGuZ0)
+
+![Sequencer Mode](https://youtu.be/UfcrCNHbg7s)
+
+![Integrate Recording Mode with Piano Stairs](https://youtu.be/eOr3jmLpJkc)
+
+## ESP32 UI/Hardware Functionality
+
+![Wire up laser module and send frequency data to ESP32](https://youtu.be/b1B3SwZmOwE)
+
+![Implement State Machine and Basic UI of ESP32](https://www.youtube.com/watch?v=wtNDlFcSXYY)
+
+![Notifications for New Songs](https://youtu.be/-5dzn5mj55E)
+
+![Piano Keys light up LEDs](https://youtu.be/JttNFdSzqg0) 
+
+![Optimize Memory Usage to extend Recording Buffer](https://youtu.be/gtbA-5gfX4E)
+
+![Clean up hardware/wires to make presentable](https://youtu.be/bzUpNi5kFbM)
+
+
+## Server Website Functionality
+
+![Basic Web UI Framework](https://youtu.be/oyCZryL-Fq8)
+
+![Database Handling of Frequency and Timing Arrays](https://youtu.be/RJyrINzUwqY)
+
+![Website Searching and Filtering](https://youtu.be/UBKW9xOdSpk)
+
+![Navigation Bar](https://youtu.be/ThjD62EfGA0)
+
+![Search Bar](https://youtu.be/FzgIuPLVZIY)
+
+![Indivial Song Page](https://youtu.be/UAaw94atx4w)
+
+![Robust Search and UI Improvements](https://youtu.be/FzqdrAsE7-A)
+
+Team Members
+===============================================================================
+
+* Alex Rice
+* Timmy Dang
+* Sebastian Garcia
+* Hermon Kaysha
+* Erin Zhang
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
+

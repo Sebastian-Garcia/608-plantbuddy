@@ -46,10 +46,10 @@ bool ledOn = false;
 //const uint8_t SOIL_PWM = 0; //Variable for Soil moisture Power, to prevent ongoing power, and only when we need it.
 
 
-const char NETWORK[] = "MIT GUEST";
+const char NETWORK[] = "MIT";
 const char PASSWORD[] = "";
 const char user[] = "alexplantbuddy608@gmail.com";
-const char plant[] = "bob";
+const char plant[] = "jeff";
 int old_count;
 int count;
 //
