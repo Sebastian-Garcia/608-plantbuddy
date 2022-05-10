@@ -6,15 +6,37 @@
 <body class="back" >
     <h1>Plant Buddy</h1>
     <div>
-        <form action="server.py" method="post" class="left">
+        <div class="left">
+        <form action="server.py" method="post">
             <div>
-                Want to add a plant?
+                Have a plant in mind?
+            </div>
+            <label for="name">Plant Name:</label><br>
+                <input type="text" id="name" name="name"><br><br>
+            <label for="user">User Email:</label><br>
+                <input type="text" id="user" name="user"><br><br>
+            <label for="type">Plant Type:</label><br>
+            <select name="type">
+            <option value ="Snake Plant">Snake Plant</option>
+            <option value ="Peace Lily">Peace Lily</option>
+            <option value ="Fiddle Leaf Fig">Fiddle Leaf Fig</option>
+            <option value ="Philodendron">Philodendron</option>
+            <option value ="ZZ Plant">ZZ Plant</option>
+            <option value ="Pothos">Pothos</option>
+            <option value ="Majesty Palm">Majesty Palm</option>
+            <option value ="Aloe">Aloe</option>
+            </select> <br><br>
+                <input type="submit" value="Submit">
+        </form> 
+        <form action="server.py" method="post" class="under">
+            <div>
+                Want to add a new type of plant?
             </div>
             <label for="name">Plant Name:</label><br>
                 <input type="text" id="name" name="name"><br><br>
             <label for="name">Plant Type:</label><br>
                 <input type="text" id="type" name="type"><br><br>
-            <label for="owner">User Email:</label><br>
+            <label for="user">User Email:</label><br>
                 <input type="text" id="user" name="user"><br><br>
             <label for="light">Hours of sunlight:</label><br>
                 <input type="text" id="light" name="light"><br><br>
@@ -24,16 +46,17 @@
                 <input type="text" id="soil" name="soil"><br><br>
                 <input type="submit" value="Submit">
         </form> 
+        </div>
         <form action="server.py" method="get" class="center">
             <div>
                 Already have a plant?
             </div>
             <label for="name">Plant Name:</label><br>
                 <input type="text" id="name" name="name"><br><br>
-            <label for="owner">User Email:</label><br>
+            <label for="user">User Email:</label><br>
                 <input type="text" id="user" name="user"><br><br>
                 <input type="submit" value="Get my plant">
-        </form> 
+        </form>
         <div class="right">
             <h2>Plant Info</h2>
             <a>Plant name: {n}</a>
@@ -68,3 +91,4 @@
     </div>
 </body>
 </html>
+

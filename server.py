@@ -109,9 +109,43 @@ def request_handler(request):
                 user = request['form']['user']
                 plantName = request['form']['name']
                 plantType = request['form']['type']
-                sunlight = request['form']['light']
-                temperature = request['form']['temp']
-                moisture = request['form']['soil']
+
+                if plantType == 'Snake Plant':
+                    sunlight = 10
+                    temperature = 10
+                    moisture = 10
+                elif plantType == 'Peace Lily':
+                    sunlight = 20
+                    temperature = 20
+                    moisture = 20
+                elif plantType == 'Fiddle Leaf Fig':
+                    sunlight = 30
+                    temperature = 30
+                    moisture = 30
+                elif plantType == 'Philodendron':
+                    sunlight = 40
+                    temperature = 40
+                    moisture = 40
+                elif plantType == 'ZZ Plant':
+                    sunlight = 50
+                    temperature = 50
+                    moisture = 50
+                elif plantType == 'Pothos':
+                    sunlight = 60
+                    temperature = 60
+                    moisture = 60
+                elif plantType == 'Majesty Palm':
+                    sunlight = 70
+                    temperature = 70
+                    moisture = 70
+                elif plantType == 'Aloe':
+                    sunlight = 80
+                    temperature = 80
+                    moisture = 80
+                else:
+                    moisture = request['form']['soil']
+                    sunlight = request['form']['light']
+                    temperature = request['form']['temp']
                 # add new plant to database
                 with sqlite3.connect(plant_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_data (plant text, type text, user text, sunlight real, temperature real, moisture real);""")
