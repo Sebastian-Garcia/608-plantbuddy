@@ -68,7 +68,7 @@ def request_handler(request):
                         #     moisture = "Medium Amount of Water Required"
                         # else:
                         #     moisture = "High Amount of Water Required"
-                        output_message = "Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)"
+                        output_message = "Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)<br> "
 
                     try:
                         with sqlite3.connect(plant_reading_db) as c:
@@ -94,7 +94,7 @@ def request_handler(request):
 
                     return htmlString.format(n=plantName, pt= plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading,output=output_message)
                 except:
-                    return htmlString.format(n=plantName, pt= plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading,output="Find your plant!")
+                    return htmlString.format(n=plantName, pt= plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr=sunlight_reading, tr=temp_reading,mr=soil_reading,output="Find your plant!<br> ")
 
         
     elif request['method'] =="POST":
@@ -114,7 +114,7 @@ def request_handler(request):
                 with sqlite3.connect(plant_reading_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
                     c.execute('''INSERT into plant_reading_data VALUES (?,?,?,?,?);''',(plantName,user,0,0,0))
-                return htmlString.format(n=plantName, pt=plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr="Pending", tr="Pending",mr="Pending", output="Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)")
+                return htmlString.format(n=plantName, pt=plantType, o=user, i=sunlight_intensity, s=sunlight_hours, t=temperature, m=moisture, sr="Pending", tr="Pending",mr="Pending", output="Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)<br> ")
 
             # add new plant POST request
             if 'form' in request.keys() and 'from' not in request["form"]:
@@ -225,7 +225,7 @@ def do_plant_logic(plant, user):
         pass
 
     if sunlight_reading == 0 and temp_reading == 0 and soil_reading == 0:
-        return "Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)"
+        return "Your Plant Buddy is currently gathering data!<br>Please wait it to finish :)<br> "
     
     output_message = ""
 
@@ -251,10 +251,10 @@ def do_plant_logic(plant, user):
         output_message += "Your plant is getting enough sunlight :)<br>"
 
     if (ideal_moisture - soil_reading > 10):
-        output_message += "Water your plant! :(<br>"
+        output_message += "Water your plant! :(<br> "
     elif (soil_reading - ideal_moisture > 10):
-        output_message += "Your plant is overwatered! :(<br>"
+        output_message += "Your plant is overwatered! :(<br> "
     else:
-        output_message += "Your plant is getting enough water :)<br>"
+        output_message += "Your plant is getting enough water :)<br> "
     
     return output_message

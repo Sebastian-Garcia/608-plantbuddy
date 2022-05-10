@@ -8,9 +8,7 @@
     <div>
         <div class="left">
         <form action="server.py" method="post">
-            <div>
-                Add a plant here!!
-            </div>
+            <h3>Add a plant here!!</h3>
             <label for="name">Plant Name:</label><br>
                 <input type="text" id="name" name="name"><br><br>
             <label for="user">User Email:</label><br>
@@ -30,9 +28,7 @@
         </form> 
         </div>
         <form action="server.py" method="post" class="left">
-            <div>
-                Couldn't find your plant? Add a new type!
-            </div>
+            <h3>Couldn't find your plant? Add a new type!</h3>
             <label for="name">Plant Name:</label><br>
                 <input type="text" id="name" name="name"><br><br>
             <label for="name">Plant Type:</label><br>
@@ -54,9 +50,7 @@
                 <input type="submit" value="Submit">
         </form> 
         <form action="server.py" method="get" class="left">
-            <div>
-                Already have a plant?
-            </div>
+            <h3>Already have a plant?</h3>
             <label for="name">Plant Name:</label><br>
                 <input type="text" id="name" name="name"><br><br>
             <label for="user">User Email:</label><br>
@@ -75,16 +69,16 @@
             <br>
             <a>Hours of sunlight needed: {s}</a>
             <br>
-            <a>Temperature (C): {t}</a>
+            <a>Ideal temperature (C): {t}</a>
             <br>
-            <a>Soil moisture: {m}</a>
+            <a>Ideal soil moisture (%): {m}</a>
             <h2>--------------------------------------------------</h2>
             <h2>Current Conditions</h2>
-            <a>Sunlight collected: {sr} foot-candle-hours</a>
+            <a>Sunlight collected (ftc-hours): {sr}</a>
             <br>
             <a>Temperature (C): {tr}</a>
             <br>
-            <a>Soil moisture: {mr}%</a>
+            <a>Soil moisture (%): {mr}</a>
             <form action="server.py" method="post">
                 <input type ="hidden" name ="name" value = {n}>
                 <input type ="hidden" name ="user" value = {o}>
@@ -93,12 +87,14 @@
                 <input type ="hidden" name ="temp" value = {t}>
                 <input type ="hidden" name ="soil" value = {m}>
                 <input type ="hidden" name ="submit" value ="submit">
+                <br>
                 <input type="submit" value="Start new sampling">
             </form>
             <h2>--------------------------------------------------</h2>
             <div>
                 <h2>To Do:</h2>
                 {output}
+                <br>
             </div>
         </div>
     </div>
