@@ -10,79 +10,62 @@ Introducing Plant Buddy, your new assistant in keeping your plants healthy and h
 
 Functionality
 ===============================================================================
-The systems starts in freeplay mode and displays a nice options menu interface to allow the user to change the mode if they want.
-We have implemented the following modes: Freeplay Mode, Recording Mode, Song Mode, and Sequencer Mode.
+Users will mainly be interfacing with our project through a website. 
 
-![State Machine Diagram](./images/state_machine.png)
 
-IDLE Mode
+Plant Info
 -------------------------------------------------------------------------------
-Our system’s default state will be this “idle” state where nothing happens if you walk up the stairs/through the pathway. 
-We added this just in case people want to turn off the system at night without unplugging the ESP32.
+On our website, users will be able to see all of their plant information. This plant information includes:
 
-Freeplay Mode
+* Plant name (e.g. Patrick, Leafy, Greeny)
+* Plant type (e.g Fern, Cactus, Snake Plant)
+* Plant owner (e.g. timmyd@mit.edu, alexplantbuddy608@gmail.com)
+* Sunlight intensity (pick from values Low, Medium, and High)
+* Hours of sunlight needed
+* Ideal temperature (in Celsius)
+* Ideal soil moisture (percentage)
+
+Initially if there is no plant, all categories will read as “no information yet”. Users have a few options to make a plant on the website and get its information, which will be talked about in the next sections.
+
+
+Selecting a Plant Type from List
 -------------------------------------------------------------------------------
-The “free play” mode of the system will detect the user’s steps and as a result, a corresponding frequency will be played on the buzzer. 
-We define a "step" as every time the laser beam is broken when a foot is placed between the laser and the phototransistor.  We integrated an LED strip to light up with every step that is taken on the stairs.  In this mode, only the most recently broken laser beam's frequency and light will play.
+One of the options that the users can do when creating a new plant on the website is selecting a plant type from the list. All users have to do is give it a name, give their email address, and select a type of plant from the list. The options, which are some of the most common household plants, are Snake Plant, Peace Lily, Fiddle Leaf Fig, Philodendron, ZZ Plant, Pothos, Majesty Palm, Aloe, and Senecio. By selecting one of these plants from the list, users don’t have to manually input any other information. After pressing submit, users will be able to see all of the plant’s information on the website. 
 
 
-Multinote Mode
+Adding a New Plant Type
 -------------------------------------------------------------------------------
-Multinote is able to play multiple notes at once, using 8 distinct buzzers each dedicated to one of the laser/phototransistor pairs on the stairs. Playing notes is done in a similar manner to the other modes, but its capabilities are extended by using arrays.  The array index tracks the stair's corresponding buzzer, phototransistor,  light strip, and the previous note played on this stair to avoid continuously playing the note and flashing the LEDS.
+One of the other options that the users can do when creating a new plant is manually inputting all of its information. This is the option to do when a plant that the user wants to keep track of isn’t one of the options present from the list. Users will input its name, type, owner, sunlight intensity, hours of sunlight needed, ideal temperature, and ideal soil moisture. After pressing submit, users will be able to see all of the plant’s information on the website.
 
-We were unable to integrate this mode with the rest of the system due to power issues.  As a result, this mode is a standalone capability not integrated with AirPiano's freeplay, recording, and sequencer modes.  
-
-![Multinote Separate Functionality](https://youtu.be/cYSi2LqmWaQ)
-
-
-
-Recording Mode
+Getting Information of an Existing Plant
 -------------------------------------------------------------------------------
-![Recording Mode States](./data/recording_mode.png)
+If users want to get information about a plant that they have already created in the past, there is an option on the website to input the plant’s name and the user’s email. After pressing submit, the plant’s information will appear on the website. This option is good for users that have more than one plant because they can easily switch back and forth on getting a plant’s information and current conditions (which will be talked about in the next section) by just inputting the name that they gave the plant. 
 
-The “recording” state will allow a user to record their musical steps and send that to a database where their friends can see the music they made and play it back on the site. 
-They first enter the "pre-recording" state where the user reads a description of the mode and must push a button to proceed. Then their sequence of steps and their respective notes will be recorded. The user is able to end the recording when they are satisfied with what they have or the recording will automatically end when the recording buffer is full.
-They will then be asked if the are sure they want to send that song to the server. If not, they leave the recording mode. If they do, then they give it a name with the Google Speech API and the second core is utilized to send the song information via HTTP POST request. The user has the chance to rename the song if the API transcribes the incorrect words. Then, by using the second core the user can immediately get back to playing in Free Play without waiting for the ESP32 to POST the recording to the server.
-
-The second core is used to POST recordings by keeping track of a global variable. The recording mode once it has finished recording and naming the song sets this variable to a value of `1`. Subsequently, the second core waits on this value to be `1`, and if it is will post the notes recorded and the name of the song. It will then set the variable back to `0` once it is done. To protect against the possibility of the user entering the Recording Mode again before the second core has recorded the song, there is a check at the start of the Recording Mode to wait until the variable is set to `0`, signaling that the second core is ready to POST another recording.
-
-Song Mode
+Current Conditions & Sampling
 -------------------------------------------------------------------------------
-The song mode allows the user to play a recorded song that was saved to the database. 
+On our website, users will be able to view the current conditions of their plant. These current conditions include:
 
-The first step is performing a GET request to retrieve the last 5 IDs + song names posted to the server.  The IDs + names are then printed to the tft screen, and the user selects one of the names with the button.  We then perform a second GET request using the ID of the song.  This pulls down the arrays for frequencies and times that each freqency should play for.  We then use these arrays to play the notes on the buzzers, and get the corresponding LEDs to light up.  
+* Sunlight collected (in foot-candles hours) 
+* Temperature (in Celsius)
+* Soil moisture (percentage)
+
+Initially, all categories will read as “no readings yet”. Users can press the “start new sampling” button in order to get readings. The sampling period is 24 hours, so once the period ends, the current conditions will display with the current conditions of the user’s plant. For testing purposes though, we did not make the whole sampling period 24 hours, but a minute. 
 
 
-Seqeuncer Mode
+To Do
 -------------------------------------------------------------------------------
-The sequencer mode allows the user to play along with themselves by playing back the notes in a loop. 
-There is a set delay interval between when the user plays a note, and when the additional copy of the note is played again. 
-To ensure that there does not end up being a constant amount of notes played such that it sounds bad, the multiple repetitions 
-of any note was limited to a constant number. 
-Further experimentation on what the exact delay length and the number of repetitions needed to provide the user the ability to improvise with themselves would be helpful.
+After a sampling period is over, there will be a to-do list that appears on the website, notifying users on what they should do to better their plant’s health. Specifically, it will notify users about what they need to do in terms of the plant’s temperature, sunlight exposure, and soil moisture. All the possible options for each conditions are listed below:
 
-To record when the notes are played in the loop, the loop length was split into distinct buckets in an array. Currently, there are `500` buckets that a note could be put within. The loop length that was decided to be 2 seconds based on a typical 120 beats per minute giving half a second per quarter note. As there are typically 4 notes to a bar, that gives a bar length of two seconds. Therefore, these 500 buckets evenly divide the space of the two seconds. This gives us enough time resolution with when notes are played by a user and when they actually repeat without sacrificing performance or storage space. 
+* Your plant is too hot! :(
+* Your plant is too cold! :(
+* Your plant is just the right temperature :)
+* Your plant needs more sunlight! :(
+* Your plant needs less sunlight! :(
+* Your plant is getting enough sunlight :)
+* Water your plant! :(
+* Your plant is overwatered! :(
+* Your plant is getting enough water :)
 
-Along with the array that tracks when frequencies are played, there is also an array that keeps track of how many times the note can repeat before stopping. This is to solve the issue where as a user adds more and more notes to the loop, there is no good current way to remove notes. So currently, all notes will play 7 times before disappearing, allowing room for the user to continue playing new rhythms and notes. An alternative to this solution could have been to dedicate one of the lasers to playing silence, but considering this would have been different from all of the other modes, it would have been unintuitive.
-
-Notification LED
--------------------------------------------------------------------------------
-A small function runs on the second core periodically and pings the server with a GET request. This request queries to determine whether new songs have been posted to the server from a different AirPiano from itself in the time period since its last ping. Depending on the number of new songs, the LED will blink green that many times to notify the user to either check the website to see the new songs or enter song mode and play them on their ESP32. This notification provides the user extra ease of use of the system and encourages exploring the songs created by other people.
-
-To ensure that the user will actually notice the LED, its normal state shines red so that it is a stark contrast when the green appears. If only a single song has been posted since the last query, it will linger on the green color for an longer amount of time compared to usual so that the user has a better chance of catching the notification.
-
-The Baker side of the team did not have notification LEDs flashing in their implementation because they did not have any more pins for more LEDs.  However, it is still a fully function implementation if there were more pins available.
-
-AirPiano Server/Website
--------------------------------------------------------------------------------
-We were able to utilize the server for GET/POST requests coming from the esp32 in various states. 
-We wrote various scripts that would allow us to perform tasks like POSTing song data from the esp32, retrieving recent entries, and retreiving the notes to a specfic song.
-Apart from this, we also made a website to accompany our project that featured 2 main pages:
-
-* Home Page - gives user a project overview and allows them to search for a specific song
-* Database Page - allows user to see the most recent entries posted to the server and play the songs
-* Song Page - a potential page that would allow for future scaling of the project, where users could one day place comments for a specific song
-* Meet the Team Page - team member profiles 
 
 Documentation
 ===============================================================================
@@ -91,8 +74,15 @@ Full System Diagram
 -------------------------------------------------------------------------------
 ![Functional Block Diagram](./images/functional_diagram.png)
 
+State Machine Diagram
+-------------------------------------------------------------------------------
+![State Machine Diagram](./images/state_machine.png)
+
 Hardware Layout
 -------------------------------------------------------------------------------
+![Circuit Diagram](./images/circuit_diagram.png)
+![Wiring Part 1](./images/wiring1.png)
+![Wiring Part 2](./images/wiring2.png)
 In the images above, you can see that we have our components wired up and ready for use. We have the LCD screen connected directly without a PWM channel as we did in a previous lab. We also have a button wired to pin 45 as in previous labs. We also have a photoresistor in series with a 20kOhm resistor for the purposes of getting the voltage using a voltage divider, and reading it on pin 3. Additionally, we picked up a new type of sensor, a soil moisture sensor, which uses a power pin and a ground pin as normal, and connected it to pin 5. This simply reads a value ranging from 0 to 2^n where n is the analogResolution so that we could easily convert it into separable ranges for soil moisture. Finally, we have the temperature and pressure sensor that we used in previous labs. Using the schematic, we matched all the necessary wires to get good readings. 
 
 
@@ -123,15 +113,12 @@ Temperature/Pressure Sensor
 Design Challenges and Decisions
 -------------------------------------------------------------------------------
 Some challenges in this project included:
-* understanding and processing sensor readings to sensible and accurate data 
 * making ESP32 responsive from button press on website
 * implementing a webscraper to scrape ideal conditions on different plants
 
-### Understanding Sensor Readings
-text
 
 ### Connecting ESP32 with Website
-text
+The ESP32 is connected to the website by the server.py file and usage of the plant_reading and plant_sampling databases. POST requests are made to the plant_sampling database by the website, and the ESP32 uses a GET request on the same database to recognize the start of a new sampling period. The inverse is done on the plant_reading database. The ESP32 POSTs raw data to the plant_reading database, which the server.py file will then utilize to perform plant logic, produce a message for the user, then make available to the website by way of a GET request.
 
 ### Webscraper
 One of the things we wanted for our design was a list in which users could select a plant from. Those plants would already have ideal sunlight, temperature, and moisture levels associated with them, so users didn’t have to manually input it. We planned on doing this by webscraping a plant website, since there were no available APIs that did that. However, webscraping was not taught about in class and nobody on the team knew how to do it. Regardless, we managed to figure it out during the Week 2 Milestone. In the end though, we decided not to use the data from the webscraper and instead we hard coded a few of the most common household plants. There was just too many plants in the database (over 1500) and it lacked temperature ranges for the plant, so we would have had to webscrape another page and join the two together. The soil and moisture readings also were different than how we processed ours, so it just didn’t work out. The webscraper code isn't part of the final code, but can be found below:
@@ -183,12 +170,18 @@ This figure shows some of the most important parts of our code run on the ESP32:
 *  '------------------------------'                      *
 **********************************************************
 
-### final.ino - GET & POST request
-
-
-### final.ino - Signal Processing 
-
 ### final.ino - Sampling
+A “sampling period” represents a 24 hour period in which data of all types is gathered about the plant’s conditions. The data is gathered over a day so as to be holistic, accounting for the entire day-to-day life of the plant. A sample of sunlight, temperature, and moisture is taken every 30 minutes for the entire 24 hour period utilizing the analog sensors described earlier.
+
+
+
+### final.ino - Signal Processing
+As described in the sampling section, we will have a sampling period of 24 hours consisting of samples gathered every 30 minutes for a total of 48 samples. For temperature, we just utilize the BMP280 libraries to retrieve the temperature in Celsius, then add to a running sum of temperature across the sampling period. At the end of the sampling period, this value is divided by 48 so as to get the average temperature that the plant experiences. The soil moisture sensor is implemented in the same way, with the only difference being the way in which we retrieve the individual sample values. For the moisture sensor, we get the 12-bit analog reading then linearly map to a moisture percentage between 0 and 100. 0 being dry air and 100 being completely saturated soil (waterlogged soil). The sunlight sensing is done in an alternative manner. This is because the sunlight quantity is a summation rather than an average. The averaging is done at the individual sample level, as the photoresistor is the most sensitive sensor on the ESP32. An averaging filter of the 50th order is used for the sunlight sensor, so as to ensure that no statistical outliers affect the data too greatly. Taking the sample and averaging across 50 values takes less than a second. This sample is also added to a running sum of sunlight gathered, but at the end of the total sampling period, it is divided by two to account for the two samples that are taken per hour (our sunlight readings on the server are quantized by hour). All of these values are then POSTed to the server.
+
+
+### final.ino - GET & POST requests
+The GET and POST requests that are made by the ESP32 are the means of communication with the server. The GET request is run every loop and used to enable near-immediate interaction between the website and the ESP32. The response from the server to the ESP32’s GET request will indicate whether a new sampling period should start. The POST request from the ESP32 is performed at the end of a sampling period, and is not repeated until the end of the next sampling period. The POST request is the method by which raw sensor data from the Plant Buddy is sent to the server.
+
 
 ### support_functions.ino
 
@@ -220,7 +213,8 @@ If a plant the user is looking for is not on the list, users can add a new type 
 Users can get information about an existing plant from plant.db by inputting the plant’s name and user email and then pressing submit. This will send a GET request to the server, which will look into the plant.db database with the plant’s name and user email that was inputted from the HTML page.
 
 ### server.py - Starting new sampling period
---text--
+In order to start a new sampling period on the ESP32, a POST request is sent to the server by the website through an HTML form. The only fields for this request are the plant and user names, which the server will then use to increment the corresponding counter value in the plant_sampling database table. The ESP32, which is constantly running a GET request to the server, will use this increase in counter value as an indicator to start a new sampling period.
+
 
 ### server.py - Plant Logic
 There is a function in the server, do_plant_logic, with the parameters plant and user, that compares the inputted values from plant.db with the sensor readings from plant_sampling.db whenever a sampling period is requested. It will return a message about the plant's temperature, sunlight, and moisture depending on the differences between the inputted values and the readings. For temperature, the ideal range is within 5 degrees Celsius. If it’s below that then the message will be “Your plant is too cold! :(“ and if it’s more than that then the message will be “Your plant is too hot! :(“. The other readings follow the same procedure, except the range for sunlight is 500 foot candles hours and the range for moisture is 10 percent. In addition, sunlight is calculated in this function by multiplying sunlight hours (inputted by the user) by sunlight intensity. Low, medium, and high sunlight intensity in our code corresponds to 50, 300, and 750 foot candles, respectively.
@@ -322,9 +316,9 @@ This week, the ESP32 state machine was cleaned up to handle situations where the
 
 ![Website submission](https://youtu.be/9SpsNbZoTxQ)
 
-![Timmy + Alex](https://www.youtube.com/watch?v=hQt1pPPDmig&ab_channel=Hermonkayshag)
+![Website + ESP32 Integration](https://www.youtube.com/watch?v=hQt1pPPDmig&ab_channel=Hermonkayshag)
 
-![Website + ESP32 Integration](https://youtu.be/TYxHQJ4rYlI)
+![Email notification](https://youtu.be/TYxHQJ4rYlI)
 
 ## Week 4
 
