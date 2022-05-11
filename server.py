@@ -11,12 +11,13 @@ plant_db = '/var/jail/home/team58/plantbuddy/plant.db'
 plant_reading_db = '/var/jail/home/team58/plantbuddy/plant_reading.db' 
 plant_sampling_db = '/var/jail/home/team58/plantbuddy/plant_sampling.db' 
 
-def send_notification(message="", recipient="sebastianag2002@gmail.com"):
+def send_notification(message, recipient="sebastianag2002@gmail.com"):
 
     sender = "sebastiandeveloperemail@gmail.com"
     password = "Pikachu44!"
-
     server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    message = message.replace(":(<br>", "\n")
+    message = message.replace(":)<br>", "\n")
     server.login(sender, password)
     server.sendmail(sender, recipient, message)
     server.quit()
@@ -199,6 +200,7 @@ def request_handler(request):
                 message = do_plant_logic(plantName, user)
                 send_notification(message, user)
                 return
+                
 
         
         

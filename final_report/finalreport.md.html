@@ -93,6 +93,7 @@ Full System Diagram
 
 Hardware Layout
 -------------------------------------------------------------------------------
+In the images above, you can see that we have our components wired up and ready for use. We have the LCD screen connected directly without a PWM channel as we did in a previous lab. We also have a button wired to pin 45 as in previous labs. We also have a photoresistor in series with a 20kOhm resistor for the purposes of getting the voltage using a voltage divider, and reading it on pin 3. Additionally, we picked up a new type of sensor, a soil moisture sensor, which uses a power pin and a ground pin as normal, and connected it to pin 5. This simply reads a value ranging from 0 to 2^n where n is the analogResolution so that we could easily convert it into separable ranges for soil moisture. Finally, we have the temperature and pressure sensor that we used in previous labs. Using the schematic, we matched all the necessary wires to get good readings. 
 
 
 Parts List
