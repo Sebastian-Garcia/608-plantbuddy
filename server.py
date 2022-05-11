@@ -195,7 +195,9 @@ def request_handler(request):
                 with sqlite3.connect(plant_reading_db) as c:
                     c.execute("""CREATE TABLE IF NOT EXISTS plant_reading_data (plant text, user text, sunlight_reading real, temperature_reading real, moisture_reading real);""")
                     c.execute('''INSERT into plant_reading_data VALUES (?,?,?,?,?);''',(plantName,user,sunlight_reading,temp_reading,soil_reading))
-                # send_notification(message=do_plant_logic(plantName, user), recipient=user)
+                
+                message = do_plant_logic(plantName, user)
+                send_notification(message, user)
                 return
 
         
